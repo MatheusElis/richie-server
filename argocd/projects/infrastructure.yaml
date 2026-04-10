@@ -10,6 +10,7 @@ spec:
     - https://prometheus-community.github.io/helm-charts
     - https://charts.jetstack.io
     - https://helm.traefik.io/traefik
+    - https://grafana.github.io/helm-charts
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
