@@ -1,0 +1,2 @@
+# richie-server
+Homelab server
