@@ -7,6 +7,9 @@ spec:
   description: Infraestrutura base do cluster
   sourceRepos:
     - https://github.com/MatheusElis/richie-server
+    - https://prometheus-community.github.io/helm-charts
+    - https://charts.jetstack.io
+    - https://helm.traefik.io/traefik
   destinations:
     - namespace: '*'
       server: https://kubernetes.default.svc
