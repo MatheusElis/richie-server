@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: downloads
+  namespace: argocd
+spec:
+  project: downloads
+  source:
+    repoURL: https://github.com/MatheusElis/richie-server
+    targetRevision: main
+    path: infrastructure/downloads
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: downloads
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

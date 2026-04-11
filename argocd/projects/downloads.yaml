@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: downloads
+  namespace: argocd
+spec:
+  description: Downloads stack - qBittorrent, Prowlarr, Radarr, Sonarr, Readarr
+  sourceRepos:
+    - https://github.com/MatheusElis/richie-server
+  destinations:
+    - namespace: downloads
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
