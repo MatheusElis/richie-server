@@ -64,15 +64,22 @@ spec:
       containers:
       - name: homepage
         image: ghcr.io/gethomepage/homepage:latest
+        env:
+        - name: HOMEPAGE_ALLOWED_HOSTS
+          value: "homepage.cusin-server.duckdns.org"
         ports:
         - containerPort: 3000
         volumeMounts:
         - name: config
           mountPath: /app/config
+        - name: logs
+          mountPath: /app/config/logs
       volumes:
       - name: config
         configMap:
           name: homepage-config
+      - name: logs
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
