@@ -21,12 +21,12 @@ if [ -z "$GITHUB_TOKEN" ]; then
     fi
 fi
 
-# Pega a URL do repositório atual
-REPO_URL=$(git remote get-url origin)
+# Pega a URL do repositório atual e garante que seja HTTPS para usar com o PAT
+REPO_URL="https://github.com/MatheusElis/richie-server.git"
 
 echo "--- 1. Instalando ArgoCD ---"
 kubectl create namespace argocd || true
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
 
 echo "--- 2. Aguardando pods do ArgoCD ---"
 kubectl wait --for=condition=Ready pods --all -n argocd --timeout=300s
@@ -54,4 +54,4 @@ kubectl apply -f ../clusters/root-app.yaml
 
 echo "--- ✅ ArgoCD instalado e bootstrap iniciado! ---"
 echo "A senha inicial do ArgoCD pode ser obtida com:"
-echo "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath=\"{.data.password}\" | base64 -d; echo"
+echo 'kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo'

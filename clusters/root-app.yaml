@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/elis/richie-server.git
+    repoURL: https://github.com/MatheusElis/richie-server.git
     targetRevision: HEAD
     path: infra
     directory:
@@ -27,7 +27,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/elis/richie-server.git
+    repoURL: https://github.com/MatheusElis/richie-server.git
     targetRevision: HEAD
     path: apps
     directory:
