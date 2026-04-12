@@ -35,7 +35,7 @@ for name in "${!apps[@]}"; do
   # -k para ignorar SSL auto-assinado, -s para silencioso, -o /dev/null para não mostrar corpo, -w para mostrar status code
   status=$(curl -Is -k "$url" | head -n 1 | awk '{print $2}')
   
-  if [[ "$status" =~ ^(200|302|400|401)$ ]]; then
+  if [[ "$status" =~ ^(200|302|307|400|401)$ ]]; then
     echo -e "✅ \e[32mOK ($status)\e[0m"
   else
     echo -e "❌ \e[31mFAIL ($status)\e[0m"

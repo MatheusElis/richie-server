@@ -40,6 +40,7 @@ spec:
       containers:
       - name: filebrowser
         image: filebrowser/filebrowser:latest
+        args: ["-d", "/database/filebrowser.db", "-r", "/srv"]
         ports:
         - containerPort: 80
         volumeMounts:
