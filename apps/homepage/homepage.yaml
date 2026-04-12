@@ -71,7 +71,11 @@ spec:
         - containerPort: 3000
         volumeMounts:
         - name: config
-          mountPath: /app/config
+          mountPath: /app/config/services.yaml
+          subPath: services.yaml
+        - name: config
+          mountPath: /app/config/settings.yaml
+          subPath: settings.yaml
         - name: logs
           mountPath: /app/config/logs
       volumes:
