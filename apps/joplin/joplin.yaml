@@ -36,14 +36,12 @@ spec:
         - name: POSTGRES_HOST
           value: postgres.infra.svc.cluster.local
         livenessProbe:
-          httpGet:
-            path: /ping
+          tcpSocket:
             port: 22300
           initialDelaySeconds: 60
           periodSeconds: 20
         readinessProbe:
-          httpGet:
-            path: /ping
+          tcpSocket:
             port: 22300
           initialDelaySeconds: 30
           periodSeconds: 15
