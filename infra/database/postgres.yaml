@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: infra
+data:
+  init.sql: |
+    -- Criar banco e usuário para Joplin
+    CREATE USER joplin WITH ENCRYPTED PASSWORD 'joplin';
+    CREATE DATABASE joplin;
+    GRANT ALL PRIVILEGES ON DATABASE joplin TO joplin;
+    ALTER DATABASE joplin OWNER TO joplin;
+
+    -- Criar banco e usuário para Nextcloud
+    CREATE USER nextcloud WITH ENCRYPTED PASSWORD 'nextcloud';
+    CREATE DATABASE nextcloud;
+    GRANT ALL PRIVILEGES ON DATABASE nextcloud TO nextcloud;
+    ALTER DATABASE nextcloud OWNER TO nextcloud;
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: infra
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        env:
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "postgres"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+      - name: init-scripts
+        configMap:
+          name: postgres-init-script
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: infra
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: postgres

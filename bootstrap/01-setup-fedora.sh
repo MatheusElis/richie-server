@@ -30,12 +30,18 @@ mkdir -p "$BASE_DATA_PATH/configs/qbittorrent" \
          "$BASE_DATA_PATH/configs/joplin" \
          "$BASE_DATA_PATH/configs/filebrowser" \
          "$BASE_DATA_PATH/configs/homepage" \
-         "$BASE_DATA_PATH/configs/nextcloud"
+         "$BASE_DATA_PATH/configs/nextcloud" \
+         "$BASE_DATA_PATH/configs/postgres"
 
 echo "--- 2. Ajustando permissões (usuário elis - 1000:1000) ---"
 sudo chown -R 1000:1000 "$BASE_DATA_PATH"
 # Garante que as pastas de config tenham permissão de escrita
 sudo chmod -R 775 "$BASE_DATA_PATH/configs"
+
+# Ajuste específico para o PostgreSQL (UID 999)
+echo "--- 2.1 Ajustando permissões para o PostgreSQL (UID 999) ---"
+sudo chown -R 999:999 "$BASE_DATA_PATH/configs/postgres"
+sudo chmod -R 700 "$BASE_DATA_PATH/configs/postgres"
 
 echo "--- 3. Configurando SELinux ---"
 if command -v semanage &> /dev/null; then
