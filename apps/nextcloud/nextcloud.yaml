@@ -34,7 +34,7 @@ spec:
         - name: NEXTCLOUD_ADMIN_PASSWORD
           value: admin
         - name: NEXTCLOUD_TRUSTED_DOMAINS
-          value: cloud.cusin-server.duckdns.org
+          value: "cloud.cusin-server.duckdns.org 192.168.15.15"
         - name: NEXTCLOUD_DATA_DIR
           value: "/var/www/html/data"
         volumeMounts:
