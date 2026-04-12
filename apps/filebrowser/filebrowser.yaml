@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: filebrowser
-        image: lscr.io/linuxserver/filebrowser:latest
+        image: linuxserver/filebrowser:latest
         env:
         - name: PUID
           value: "1000"
