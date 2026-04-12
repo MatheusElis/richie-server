@@ -25,6 +25,18 @@ spec:
           value: "America/Sao_Paulo"
         ports:
         - containerPort: 8083
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          initialDelaySeconds: 60
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 15
         volumeMounts:
         - name: config
           mountPath: /config

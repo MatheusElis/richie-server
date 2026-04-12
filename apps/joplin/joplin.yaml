@@ -26,6 +26,11 @@ spec:
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
+        livenessProbe:
+          exec:
+            command: ["pg_isready", "-U", "joplin"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
       - name: app
         image: joplin/server:latest
         ports:
@@ -45,6 +50,18 @@ spec:
           value: joplin
         - name: POSTGRES_HOST
           value: localhost
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 22300
+          initialDelaySeconds: 60
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 22300
+          initialDelaySeconds: 30
+          periodSeconds: 15
       volumes:
       - name: db-data
         persistentVolumeClaim:
