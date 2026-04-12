@@ -23,7 +23,6 @@ declare -A apps=(
   ["Calibre"]="https://calibre.$DOMAIN"
   ["Joplin"]="https://joplin.$DOMAIN/ping"
   ["Nextcloud"]="https://cloud.$DOMAIN"
-  ["Filebrowser"]="https://files.$DOMAIN"
 )
 
 failed=0

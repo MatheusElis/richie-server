@@ -31,7 +31,10 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 echo "--- 2. Aguardando pods do ArgoCD ---"
 kubectl wait --for=condition=Ready pods --all -n argocd --timeout=300s
 
-echo "--- 3. Registrando repositório privado no ArgoCD ---"
+echo "--- 3. Configurando ArgoCD para modo insecure ---"
+kubectl -n argocd patch deployment argocd-server --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/command", "value": ["argocd-server"]}, {"op": "add", "path": "/spec/template/spec/containers/0/args", "value": ["--insecure"]}]'
+
+echo "--- 4. Registrando repositório privado no ArgoCD ---"
 # O ArgoCD precisa do token para monitorar este repositório privado
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
