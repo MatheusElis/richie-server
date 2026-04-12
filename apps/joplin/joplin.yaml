@@ -23,6 +23,9 @@ spec:
           value: joplin
         - name: POSTGRES_DB
           value: joplin
+        volumeMounts:
+        - name: db-data
+          mountPath: /var/lib/postgresql/data
       - name: app
         image: joplin/server:latest
         ports:
@@ -42,6 +45,10 @@ spec:
           value: joplin
         - name: POSTGRES_HOST
           value: localhost
+      volumes:
+      - name: db-data
+        persistentVolumeClaim:
+          claimName: joplin-config-pvc
 ---
 apiVersion: v1
 kind: Service

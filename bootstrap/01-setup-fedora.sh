@@ -11,6 +11,7 @@ else
 fi
 
 echo "--- 1. Criando estrutura de diretórios em $BASE_DATA_PATH ---"
+# Estrutura de Downloads e Media
 mkdir -p "$BASE_DATA_PATH/downloads/complete/audiobooks" \
          "$BASE_DATA_PATH/downloads/complete/books" \
          "$BASE_DATA_PATH/downloads/complete/movies" \
@@ -22,12 +23,21 @@ mkdir -p "$BASE_DATA_PATH/downloads/complete/audiobooks" \
          "$BASE_DATA_PATH/media/tv" \
          "$BASE_DATA_PATH/nextcloud-data"
 
+# Estrutura de Configurações centralizada
+mkdir -p "$BASE_DATA_PATH/configs/qbittorrent" \
+         "$BASE_DATA_PATH/configs/kavita" \
+         "$BASE_DATA_PATH/configs/calibre" \
+         "$BASE_DATA_PATH/configs/joplin" \
+         "$BASE_DATA_PATH/configs/filebrowser" \
+         "$BASE_DATA_PATH/configs/homepage" \
+         "$BASE_DATA_PATH/configs/nextcloud"
+
 echo "--- 2. Ajustando permissões (usuário elis - 1000:1000) ---"
-# No Fedora Server, o primeiro usuário comum geralmente é 1000
 sudo chown -R 1000:1000 "$BASE_DATA_PATH"
+# Garante que as pastas de config tenham permissão de escrita
+sudo chmod -R 775 "$BASE_DATA_PATH/configs"
 
 echo "--- 3. Configurando SELinux ---"
-# Permite que o k3s/contêineres acessem o hostPath no Fedora
 if command -v semanage &> /dev/null; then
   sudo semanage fcontext -a -t svirt_sandbox_file_t "$BASE_DATA_PATH(/.*)?" || true
   sudo restorecon -Rv "$BASE_DATA_PATH"

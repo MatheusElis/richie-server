@@ -4,11 +4,8 @@ metadata:
   name: downloads-pvc
   namespace: media
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Gi
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
   volumeName: downloads-pv
   storageClassName: ""
 ---
@@ -18,11 +15,8 @@ metadata:
   name: media-pvc
   namespace: media
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Gi
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
   volumeName: media-pv
   storageClassName: ""
 ---
@@ -32,10 +26,52 @@ metadata:
   name: nextcloud-pvc
   namespace: apps
 spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 100Gi
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
   volumeName: nextcloud-pv
+  storageClassName: ""
+---
+# PVCs de Configuração
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: qbittorrent-config-pvc
+  namespace: media
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 10Gi}}
+  volumeName: qbittorrent-config-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kavita-config-pvc
+  namespace: media
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 10Gi}}
+  volumeName: kavita-config-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: calibre-config-pvc
+  namespace: media
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 10Gi}}
+  volumeName: calibre-config-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: joplin-config-pvc
+  namespace: apps
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 10Gi}}
+  volumeName: joplin-config-pv
   storageClassName: ""

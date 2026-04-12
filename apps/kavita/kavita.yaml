@@ -13,21 +13,22 @@ spec:
       labels:
         app: kavita
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
       - name: kavita
         image: jvmilazz0/kavita:latest
         ports:
         - containerPort: 5000
         volumeMounts:
+        - name: config
+          mountPath: /kavita/config
         - name: media
           mountPath: /media
         - name: downloads
           mountPath: /downloads
       volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: kavita-config-pvc
       - name: media
         persistentVolumeClaim:
           claimName: media-pvc

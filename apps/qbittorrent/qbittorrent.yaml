@@ -13,10 +13,6 @@ spec:
       labels:
         app: qbittorrent
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
       - name: qbittorrent
         image: linuxserver/qbittorrent:latest
@@ -33,9 +29,14 @@ spec:
         - containerPort: 8080
           name: webui
         volumeMounts:
+        - name: config
+          mountPath: /config
         - name: downloads
           mountPath: /downloads
       volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: qbittorrent-config-pvc
       - name: downloads
         persistentVolumeClaim:
           claimName: downloads-pvc

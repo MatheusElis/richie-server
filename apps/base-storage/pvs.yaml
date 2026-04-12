@@ -5,11 +5,9 @@ metadata:
 spec:
   capacity:
     storage: 100Gi
-  accessModes:
-    - ReadWriteMany
+  accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /home/elis/data/downloads
+  hostPath: {path: /home/elis/data/downloads}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -18,11 +16,9 @@ metadata:
 spec:
   capacity:
     storage: 100Gi
-  accessModes:
-    - ReadWriteMany
+  accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /home/elis/data/media
+  hostPath: {path: /home/elis/data/media}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -31,8 +27,43 @@ metadata:
 spec:
   capacity:
     storage: 100Gi
-  accessModes:
-    - ReadWriteMany
+  accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /home/elis/data/nextcloud-data
+  hostPath: {path: /home/elis/data/nextcloud-data}
+---
+# Volumes de Configuração
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: qbittorrent-config-pv
+spec:
+  capacity: {storage: 10Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/qbittorrent}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kavita-config-pv
+spec:
+  capacity: {storage: 10Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/kavita}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: calibre-config-pv
+spec:
+  capacity: {storage: 10Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/calibre}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: joplin-config-pv
+spec:
+  capacity: {storage: 10Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/joplin}

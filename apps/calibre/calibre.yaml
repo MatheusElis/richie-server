@@ -13,10 +13,6 @@ spec:
       labels:
         app: calibre-web
     spec:
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
       containers:
       - name: calibre-web
         image: linuxserver/calibre-web:latest
@@ -30,11 +26,16 @@ spec:
         ports:
         - containerPort: 8083
         volumeMounts:
+        - name: config
+          mountPath: /config
         - name: media
           mountPath: /books
         - name: downloads
           mountPath: /import
       volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: calibre-config-pvc
       - name: media
         persistentVolumeClaim:
           claimName: media-pvc
