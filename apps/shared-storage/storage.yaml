@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: downloads-pv
+spec:
+  capacity: {storage: 100Gi}
+  accessModes: [ReadWriteMany]
+  persistentVolumeReclaimPolicy: Retain
+  hostPath: {path: /home/elis/data/downloads}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: downloads-pvc
+  namespace: media
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
+  volumeName: downloads-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: media-pv
+spec:
+  capacity: {storage: 100Gi}
+  accessModes: [ReadWriteMany]
+  persistentVolumeReclaimPolicy: Retain
+  hostPath: {path: /home/elis/data/media}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: media-pvc
+  namespace: media
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
+  volumeName: media-pv
+  storageClassName: ""
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nextcloud-data-pv
+spec:
+  capacity: {storage: 100Gi}
+  accessModes: [ReadWriteMany]
+  persistentVolumeReclaimPolicy: Retain
+  hostPath: {path: /home/elis/data/nextcloud-data}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-pvc
+  namespace: apps
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 100Gi}}
+  volumeName: nextcloud-data-pv
+  storageClassName: ""

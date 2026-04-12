@@ -1,21 +1,33 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity: {storage: 20Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/postgres}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: infra
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 20Gi}}
+  volumeName: postgres-pv
+  storageClassName: ""
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init-script
   namespace: infra
 data:
   init.sql: |
-    -- Criar banco e usuário para Joplin
-    CREATE USER joplin WITH ENCRYPTED PASSWORD 'joplin';
+    -- Criar bancos de dados (usuário BASE_USER já será dono pois é o root do container)
     CREATE DATABASE joplin;
-    GRANT ALL PRIVILEGES ON DATABASE joplin TO joplin;
-    ALTER DATABASE joplin OWNER TO joplin;
-
-    -- Criar banco e usuário para Nextcloud
-    CREATE USER nextcloud WITH ENCRYPTED PASSWORD 'nextcloud';
     CREATE DATABASE nextcloud;
-    GRANT ALL PRIVILEGES ON DATABASE nextcloud TO nextcloud;
-    ALTER DATABASE nextcloud OWNER TO nextcloud;
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -38,8 +50,16 @@ spec:
       - name: postgres
         image: postgres:15
         env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: homelab-auth
+              key: username
         - name: POSTGRES_PASSWORD
-          value: postgres
+          valueFrom:
+            secretKeyRef:
+              name: homelab-auth
+              key: password
         ports:
         - containerPort: 5432
           name: postgres

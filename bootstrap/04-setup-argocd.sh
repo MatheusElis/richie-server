@@ -1,5 +1,5 @@
 #!/bin/bash
-# 03-setup-argocd.sh: Instala o ArgoCD e faz o bootstrap do repositório privado
+# 04-setup-argocd.sh: Instala o ArgoCD e faz o bootstrap do repositório privado
 set -e
 
 # Carrega variáveis

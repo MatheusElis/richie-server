@@ -1,3 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: filebrowser-config-pv
+spec:
+  capacity: {storage: 5Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/filebrowser}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebrowser-config-pvc
+  namespace: apps
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 5Gi}}
+  volumeName: filebrowser-config-pv
+  storageClassName: ""
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,10 +45,15 @@ spec:
         volumeMounts:
         - name: data
           mountPath: /srv
+        - name: config
+          mountPath: /config
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: nextcloud-pvc # Usaremos o PVC do nextcloud para gerir os dados brutos se quiser
+          claimName: nextcloud-pvc
+      - name: config
+        persistentVolumeClaim:
+          claimName: filebrowser-config-pvc
 ---
 apiVersion: v1
 kind: Service

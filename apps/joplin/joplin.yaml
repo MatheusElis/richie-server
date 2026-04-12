@@ -1,3 +1,23 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: joplin-config-pv
+spec:
+  capacity: {storage: 10Gi}
+  accessModes: [ReadWriteMany]
+  hostPath: {path: /home/elis/data/configs/joplin}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: joplin-config-pvc
+  namespace: apps
+spec:
+  accessModes: [ReadWriteMany]
+  resources: {requests: {storage: 10Gi}}
+  volumeName: joplin-config-pv
+  storageClassName: ""
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,11 +50,17 @@ spec:
         - name: DB_CLIENT
           value: pg
         - name: POSTGRES_PASSWORD
-          value: joplin
+          valueFrom:
+            secretKeyRef:
+              name: homelab-auth
+              key: password
         - name: POSTGRES_DATABASE
           value: joplin
         - name: POSTGRES_USER
-          value: joplin
+          valueFrom:
+            secretKeyRef:
+              name: homelab-auth
+              key: username
         - name: POSTGRES_HOST
           value: postgres.infra.svc.cluster.local
         livenessProbe:
