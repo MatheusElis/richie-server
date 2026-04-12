@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kavita
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kavita
+  template:
+    metadata:
+      labels:
+        app: kavita
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: kavita
+        image: jvmilazz0/kavita:latest
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: media
+          mountPath: /media
+        - name: downloads
+          mountPath: /downloads
+      volumes:
+      - name: media
+        persistentVolumeClaim:
+          claimName: media-pvc
+      - name: downloads
+        persistentVolumeClaim:
+          claimName: downloads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kavita
+  namespace: media
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: kavita
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kavita
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  tls:
+  - hosts:
+    - kavita.cusin-server.duckdns.org
+    secretName: kavita-tls
+  rules:
+  - host: kavita.cusin-server.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kavita
+            port:
+              number: 80

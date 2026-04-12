@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qbittorrent
+  namespace: media
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qbittorrent
+  template:
+    metadata:
+      labels:
+        app: qbittorrent
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: qbittorrent
+        image: linuxserver/qbittorrent:latest
+        env:
+        - name: PUID
+          value: "1000"
+        - name: PGID
+          value: "1000"
+        - name: TZ
+          value: "America/Sao_Paulo"
+        - name: WEBUI_PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+          name: webui
+        volumeMounts:
+        - name: downloads
+          mountPath: /downloads
+      volumes:
+      - name: downloads
+        persistentVolumeClaim:
+          claimName: downloads-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qbittorrent
+  namespace: media
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: qbittorrent
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qbittorrent
+  namespace: media
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  tls:
+  - hosts:
+    - qbittorrent.cusin-server.duckdns.org
+    secretName: qbittorrent-tls
+  rules:
+  - host: qbittorrent.cusin-server.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: qbittorrent
+            port:
+              number: 80

@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage-config
+  namespace: apps
+data:
+  services.yaml: |
+    - Core:
+        - ArgoCD:
+            icon: argocd
+            href: http://192.168.15.15:30080 # Porta padrão se não mudar
+            description: GitOps Management
+    - Media:
+        - qBittorrent:
+            icon: qbittorrent
+            href: https://qbittorrent.cusin-server.duckdns.org
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent.media.svc.cluster.local:80
+        - Kavita:
+            icon: kavita
+            href: https://kavita.cusin-server.duckdns.org
+        - Calibre:
+            icon: calibre
+            href: https://calibre.cusin-server.duckdns.org
+    - Apps:
+        - Nextcloud:
+            icon: nextcloud
+            href: https://cloud.cusin-server.duckdns.org
+        - Filebrowser:
+            icon: filebrowser
+            href: https://files.cusin-server.duckdns.org
+        - Joplin:
+            icon: joplin
+            href: https://joplin.cusin-server.duckdns.org
+  settings.yaml: |
+    title: Cusin Homelab
+    layout:
+      Core:
+        style: row
+        columns: 1
+      Media:
+        style: row
+        columns: 3
+      Apps:
+        style: row
+        columns: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      containers:
+      - name: homepage
+        image: ghcr.io/gethomepage/homepage:latest
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+      volumes:
+      - name: config
+        configMap:
+          name: homepage-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: apps
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: homepage
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage
+  namespace: apps
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  tls:
+  - hosts:
+    - homepage.cusin-server.duckdns.org
+    secretName: homepage-tls
+  rules:
+  - host: homepage.cusin-server.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: homepage
+            port:
+              number: 80

@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: joplin-server
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: joplin
+  template:
+    metadata:
+      labels:
+        app: joplin
+    spec:
+      containers:
+      - name: db
+        image: postgres:15
+        env:
+        - name: POSTGRES_PASSWORD
+          value: joplin
+        - name: POSTGRES_USER
+          value: joplin
+        - name: POSTGRES_DB
+          value: joplin
+      - name: app
+        image: joplin/server:latest
+        ports:
+        - containerPort: 22300
+        env:
+        - name: APP_PORT
+          value: "22300"
+        - name: APP_BASE_URL
+          value: "https://joplin.cusin-server.duckdns.org"
+        - name: DB_CLIENT
+          value: pg
+        - name: POSTGRES_PASSWORD
+          value: joplin
+        - name: POSTGRES_DATABASE
+          value: joplin
+        - name: POSTGRES_USER
+          value: joplin
+        - name: POSTGRES_HOST
+          value: localhost
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: joplin
+  namespace: apps
+spec:
+  ports:
+  - port: 80
+    targetPort: 22300
+  selector:
+    app: joplin
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: joplin
+  namespace: apps
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  tls:
+  - hosts:
+    - joplin.cusin-server.duckdns.org
+    secretName: joplin-tls
+  rules:
+  - host: joplin.cusin-server.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: joplin
+            port:
+              number: 80

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filebrowser
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filebrowser
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+      - name: filebrowser
+        image: filebrowser/filebrowser:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: data
+          mountPath: /srv
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nextcloud-pvc # Usaremos o PVC do nextcloud para gerir os dados brutos se quiser
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: filebrowser
+  namespace: apps
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: filebrowser
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: filebrowser
+  namespace: apps
+  annotations:
+    cert-manager.io/cluster-issuer: selfsigned-issuer
+spec:
+  tls:
+  - hosts:
+    - files.cusin-server.duckdns.org
+    secretName: filebrowser-tls
+  rules:
+  - host: files.cusin-server.duckdns.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: filebrowser
+            port:
+              number: 80
