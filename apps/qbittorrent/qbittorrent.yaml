@@ -32,14 +32,14 @@ spec:
           httpGet:
             path: /
             port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 15
+          initialDelaySeconds: 120
+          periodSeconds: 20
         readinessProbe:
           httpGet:
             path: /
             port: 8080
-          initialDelaySeconds: 15
-          periodSeconds: 10
+          initialDelaySeconds: 60
+          periodSeconds: 15
         volumeMounts:
         - name: config
           mountPath: /config
