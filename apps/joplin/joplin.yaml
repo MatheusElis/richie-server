@@ -25,6 +25,8 @@ spec:
           value: "22300"
         - name: APP_BASE_URL
           value: "https://joplin.cusin-server.duckdns.org"
+        - name: JOPLIN_ALLOWED_ORIGINS
+          value: "*"
         - name: DB_CLIENT
           value: pg
         - name: POSTGRES_PASSWORD
@@ -65,6 +67,8 @@ metadata:
   namespace: apps
   annotations:
     cert-manager.io/cluster-issuer: selfsigned-issuer
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   tls:
   - hosts:
