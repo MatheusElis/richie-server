@@ -35,16 +35,10 @@ spec:
     spec:
       containers:
       - name: filebrowser
-        image: linuxserver/filebrowser:latest
-        env:
-        - name: PUID
-          value: "1000"
-        - name: PGID
-          value: "1000"
-        - name: TZ
-          value: "America/Sao_Paulo"
+        image: filebrowser/filebrowser:latest
         ports:
         - containerPort: 80
+        args: ["--port", "80", "--database", "/config/filebrowser.db", "--root", "/data"]
         volumeMounts:
         - name: data
           mountPath: /data
