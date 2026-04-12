@@ -1,9 +1,0 @@
-# ==============================================================
-# Configuração Global do Richie Server
-# Edite este arquivo ao trocar de IP ou domínio
-# ==============================================================
-global:
-  domain: cusin-server.duckdns.org
-  internalIP: 192.168.15.15
-  dataPath: /home/elis/data
-  timezone: America/Sao_Paulo
