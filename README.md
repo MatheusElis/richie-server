@@ -1,49 +1,94 @@
-# Richie Homelab - GitOps com k3s e ArgoCD
+# Richie Homelab - GitOps Profissional com k3s e ArgoCD
 
-Este repositório contém a configuração completa (Infra e Apps) do meu homelab, gerenciado via práticas de GitOps utilizando ArgoCD e k3s.
+Este repositório contém a infraestrutura completa do meu homelab, projetada com foco em automação (Makefile), rastreabilidade (GitOps individualizado) e simplicidade.
 
-## 🚀 Arquitetura
-- **Sistema Operacional**: Fedora Server (IP Fixo: `192.168.15.15`).
-- **Cluster**: [k3s](https://k3s.io/) (Single Node).
-- **GitOps**: [ArgoCD](https://argoproj.github.io/cd/) monitorando este repositório privado.
-- **Ingress Controller**: Traefik (nativo do k3s).
-- **Certificados**: Cert-Manager com CA Local (HTTPS auto-assinado).
-- **Segredos**: [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) (Bitnami) para versionamento seguro de senhas.
-- **Armazenamento**: HostPath mapeado para `/home/elis/data` com permissões para UID:GID 1000.
+## 🚀 Arquitetura do Sistema
+- **SO**: Fedora Server (IP Fixo: `192.168.15.15`).
+- **Orquestração**: [k3s](https://k3s.io/) (Kubernetes leve).
+- **GitOps**: [ArgoCD](https://argoproj.github.io/cd/) seguindo o padrão **App of Apps**.
+- **Ingress**: Traefik (nativo do k3s) com HTTPS local.
+- **Banco de Dados**: PostgreSQL centralizado (instância única para todas as aplicações).
+- **Armazenamento**: Persistência no host em `/home/elis/data/` com permissões automáticas.
 
-## 📂 Estrutura do Repositório
-- `bootstrap/`: Scripts Bash para preparar o SO e instalar o cluster do zero.
-- `infra/`: Componentes base do sistema (namespaces, cert-manager, etc).
-- `apps/`: Manifestos das aplicações finais (Nextcloud, qBittorrent, Kavita, etc).
-- `clusters/`: O padrão "App of Apps" que orquestra a instalação de tudo.
+---
 
-## 🛠️ Instalação (Disaster Recovery)
-Caso precise reinstalar o servidor do zero em um novo disco:
-1. Instale o Fedora Server e configure o IP `192.168.15.15`.
-2. Clone este repositório.
-3. Garanta que o seu Personal Access Token do GitHub esteja em `bootstrap/.env` ou no arquivo `/home/elis/github_token`.
-4. Execute os scripts em ordem:
-   ```bash
-   cd bootstrap
-   ./01-setup-fedora.sh
-   ./02-install-k3s.sh
-   ./03-setup-argocd.sh
-   ```
+## 📁 Estrutura do Repositório
+```text
+.
+├── Makefile                # Comandos principais (install, teardown, test)
+├── bootstrap/              # Scripts bash de configuração inicial e SO
+├── clusters/               # Definições das aplicações para o ArgoCD
+│   ├── apps/               # Uma Application para cada serviço do usuário
+│   └── infra/              # Uma Application para cada componente base
+├── infra/                  # Manifestos da infraestrutura (Postgres, Certs)
+└── apps/                   # Manifestos das aplicações finais
+    ├── [app-name]/         # Pasta única contendo PV, PVC, Deploy, Service e Ingress
+    └── shared-storage/     # Volumes compartilhados (Media e Downloads)
+```
 
-## 🔐 Gerenciando Segredos (Sealed Secrets)
-Nunca comite senhas em texto puro. Para adicionar um novo segredo:
-1. Crie o secret localmente (sem aplicar):
-   `kubectl create secret generic meu-app-secret --from-literal=PASSWORD=minhasenha --dry-run=client -o yaml > secret-raw.yaml`
-2. Criptografe usando o `kubeseal`:
-   `kubeseal < secret-raw.yaml > sealed-secret.yaml`
-3. Comite o arquivo `sealed-secret.yaml` e delete o `secret-raw.yaml`. O ArgoCD aplicará o arquivo criptografado e o cluster criará o Secret real automaticamente.
+---
 
-## 🌐 Acesso às Aplicações
-Todos os serviços utilizam o domínio `cusin-server.duckdns.org` resolvendo para o IP interno:
-- **Dashboard Principal**: [https://homepage.cusin-server.duckdns.org](https://homepage.cusin-server.duckdns.org)
-- **Torrent**: [https://qbittorrent.cusin-server.duckdns.org](https://qbittorrent.cusin-server.duckdns.org)
+## 🛠️ Operação Básica (Makefile)
+
+O ciclo de vida do homelab é gerenciado pelo `Makefile` na raiz:
+
+- **Instalação Total**: `make install`
+  *(Prepara o Fedora, instala k3s, configura autenticação, sobe o ArgoCD e testa tudo)*.
+- **Limpeza Total (Reset)**: `make teardown`
+  *(Desinstala o cluster e apaga todos os dados em /home/elis/data)*.
+- **Validar Saúde**: `make test`
+  *(Executa testes de curl em todos os endpoints de Ingress)*.
+
+---
+
+## 🔐 Usuários e Senhas
+
+O homelab utiliza um sistema de **Autenticação Global**. As credenciais são definidas no arquivo `bootstrap/.env` e injetadas no Kubernetes via Secret (`homelab-auth`).
+
+### 1. Credenciais Predefinidas
+Atualmente configurado como:
+- **Usuário**: `elis`
+- **Senha**: `pamonha0312`
+
+### 2. Onde elas se aplicam?
+- **PostgreSQL**: Usuário root do banco.
+- **Nextcloud**: Usuário administrador criado automaticamente.
+- **Joplin**: Credenciais de conexão com o banco.
+- **ArgoCD**: O usuário inicial é `admin`. A senha deve ser obtida com:
+  `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo`
+
+*Nota: Aplicações como qBittorrent e Kavita possuem setups iniciais próprios (ex: admin/adminadmin).*
+
+---
+
+## ➕ Como adicionar uma nova aplicação
+
+Para adicionar um novo serviço (ex: `my-app`):
+
+1. **Crie a pasta do app**: `mkdir -p apps/my-app`
+2. **Crie o manifesto consolidado**: `apps/my-app/my-app.yaml`
+   - Inclua no mesmo arquivo: `PersistentVolume` (apontando para `/home/elis/data/configs/my-app`), `PersistentVolumeClaim`, `Deployment`, `Service` e `Ingress`.
+3. **Crie a Application no Argo**: Crie `clusters/apps/my-app.yaml` apontando para `path: apps/my-app`.
+4. **Prepare a pasta no host**: Adicione a criação do diretório em `bootstrap/01-setup-fedora.sh`.
+5. **Commit e Push**: O ArgoCD detectará o novo arquivo em `clusters/apps/` e criará um novo card no painel automaticamente.
+
+---
+
+## 🌐 Endpoints Disponíveis
+Acesse via rede local (aceitando o certificado autoassinado):
+
+- **Dashboard**: [https://homepage.cusin-server.duckdns.org](https://homepage.cusin-server.duckdns.org)
+- **GitOps (ArgoCD)**: [https://argocd.cusin-server.duckdns.org](https://argocd.cusin-server.duckdns.org)
 - **Arquivos**: [https://files.cusin-server.duckdns.org](https://files.cusin-server.duckdns.org)
-- **E-books (Kavita)**: [https://kavita.cusin-server.duckdns.org](https://kavita.cusin-server.duckdns.org)
-- **Nuvem (Nextcloud)**: [https://cloud.cusin-server.duckdns.org](https://cloud.cusin-server.duckdns.org)
+- **Nuvem**: [https://cloud.cusin-server.duckdns.org](https://cloud.cusin-server.duckdns.org)
+- **Torrent**: [https://qbittorrent.cusin-server.duckdns.org](https://qbittorrent.cusin-server.duckdns.org)
+- **Leitura**: [https://kavita.cusin-server.duckdns.org](https://kavita.cusin-server.duckdns.org)
+- **E-books**: [https://calibre.cusin-server.duckdns.org](https://calibre.cusin-server.duckdns.org)
+- **Notas**: [https://joplin.cusin-server.duckdns.org](https://joplin.cusin-server.duckdns.org)
 
-> **Nota sobre HTTPS**: Como os certificados são gerados por uma CA Local, seu navegador mostrará um aviso de segurança. Para resolver, importe o certificado raiz gerado pelo `cert-manager` no seu computador/celular.
+---
+
+## ⚠️ Dicas de Resolução de Problemas
+- **SELinux**: Se uma app não conseguir escrever, rode `sudo restorecon -Rv /home/elis/data`.
+- **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
+- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
