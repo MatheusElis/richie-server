@@ -43,6 +43,11 @@ echo "--- 2.1 Ajustando permissões para o PostgreSQL (UID 999) ---"
 sudo chown -R 999:999 "$BASE_DATA_PATH/configs/postgres"
 sudo chmod -R 700 "$BASE_DATA_PATH/configs/postgres"
 
+# Ajuste específico para o Nextcloud (UID 33)
+echo "--- 2.2 Ajustando permissões para o Nextcloud (UID 33) ---"
+sudo chown -R 33:33 "$BASE_DATA_PATH/nextcloud-data"
+sudo chmod -R 775 "$BASE_DATA_PATH/nextcloud-data"
+
 echo "--- 3. Configurando SELinux ---"
 if command -v semanage &> /dev/null; then
   sudo semanage fcontext -a -t svirt_sandbox_file_t "$BASE_DATA_PATH(/.*)?" || true
