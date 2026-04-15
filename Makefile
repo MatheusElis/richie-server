@@ -6,8 +6,8 @@
 install: setup-os install-k3s setup-auth setup-argocd test
 
 setup-os:
-	@echo "--- 🛠️ Preparando Sistema Operacional Fedora ---"
-	cd bootstrap && ./01-setup-fedora.sh
+	@echo "--- 🛠️ Preparando Sistema Operacional Ubuntu ---"
+	cd bootstrap && ./01-setup-ubuntu.sh
 
 install-k3s:
 	@echo "--- ☸️ Instalando Cluster k3s ---"

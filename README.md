@@ -8,7 +8,7 @@ Este repositório contém a infraestrutura completa do meu homelab, projetada co
 - **GitOps**: [ArgoCD](https://argoproj.github.io/cd/) seguindo o padrão **App of Apps**.
 - **Ingress**: Traefik (nativo do k3s) com HTTPS local.
 - **Banco de Dados**: PostgreSQL centralizado (instância única para todas as aplicações).
-- **Armazenamento**: Persistência no host em `/home/elis/data/` com permissões automáticas.
+- **Armazenamento**: Persistência no host em `$HOME/data/` com permissões automáticas.
 
 ---
 
@@ -35,7 +35,7 @@ O ciclo de vida do homelab é gerenciado pelo `Makefile` na raiz:
 - **Instalação Total**: `make install`
   *(Prepara o Fedora, instala k3s, configura autenticação, sobe o ArgoCD e testa tudo)*.
 - **Limpeza Total (Reset)**: `make teardown`
-  *(Desinstala o cluster e apaga todos os dados em /home/elis/data)*.
+  *(Desinstala o cluster e apaga todos os dados em $HOME/data)*.
 - **Validar Saúde**: `make test`
   *(Executa testes de curl em todos os endpoints de Ingress)*.
 
@@ -67,7 +67,7 @@ Para adicionar um novo serviço (ex: `my-app`):
 
 1. **Crie a pasta do app**: `mkdir -p apps/my-app`
 2. **Crie o manifesto consolidado**: `apps/my-app/my-app.yaml`
-   - Inclua no mesmo arquivo: `PersistentVolume` (apontando para `/home/elis/data/configs/my-app`), `PersistentVolumeClaim`, `Deployment`, `Service` e `Ingress`.
+   - Inclua no mesmo arquivo: `PersistentVolume` (apontando para `$HOME/data/configs/my-app`), `PersistentVolumeClaim`, `Deployment`, `Service` e `Ingress`.
 3. **Crie a Application no Argo**: Crie `clusters/apps/my-app.yaml` apontando para `path: apps/my-app`.
 4. **Prepare a pasta no host**: Adicione a criação do diretório em `bootstrap/01-setup-fedora.sh`.
 5. **Commit e Push**: O ArgoCD detectará o novo arquivo em `clusters/apps/` e criará um novo card no painel automaticamente.
@@ -89,6 +89,6 @@ Acesse via rede local (aceitando o certificado autoassinado):
 ---
 
 ## ⚠️ Dicas de Resolução de Problemas
-- **SELinux**: Se uma app não conseguir escrever, rode `sudo restorecon -Rv /home/elis/data`.
+- **SELinux**: Se uma app não conseguir escrever, rode `sudo restorecon -Rv $HOME/data`.
 - **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
 - **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.

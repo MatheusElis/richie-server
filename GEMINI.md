@@ -28,7 +28,7 @@ Richie Homelab is a professional-grade personal infrastructure project managed v
 ## Automation & Commands
 The project uses a `Makefile` to simplify complex operations:
 - `make install`: Full end-to-end setup (OS prep -> k3s -> Auth -> ArgoCD -> Tests).
-- `make teardown`: Complete destructive reset (removes k3s and all data in `/home/elis/data`).
+- `make teardown`: Complete destructive reset (removes k3s and all data in `$HOME/data`).
 - `make test`: Validates all application endpoints via `curl`.
 - `make setup-auth`: Generates the `homelab-auth` Secret in `infra` and `apps` namespaces using credentials from `bootstrap/.env`.
 
@@ -41,7 +41,7 @@ To add or modify an application, ensure there is:
 
 ### 2. Consolidated Manifests
 Each application must manage its own lifecycle within a single file located at `apps/[app-name]/[app-name].yaml`. This file **must** include:
-- `PersistentVolume` (using `hostPath` to `/home/elis/data/configs/[app-name]`).
+- `PersistentVolume` (using `hostPath` to `$HOME/data/configs/[app-name]`).
 - `PersistentVolumeClaim`.
 - `Deployment`.
 - `Service`.
@@ -50,14 +50,13 @@ Each application must manage its own lifecycle within a single file located at `
 ### 3. Centralized Authentication
 - Use the `homelab-auth` Secret for all services requiring a common username and password.
 - Reference it in manifests using `valueFrom.secretKeyRef`.
-- Current global credentials (defined in `.env`): User: `elis`, Password: `pamonha0312`.
+- Current global credentials: User and Password are defined in `bootstrap/.env`.
 
 ### 4. Storage & Permissions
-- **Base path:** `/home/elis/data`.
+- **Base path:** `$HOME/data`.
 - **Media/Downloads:** Owned by UID:GID `1000:1000`.
 - **Database (Postgres):** Owned by UID:GID `999:999`.
 - **Nextcloud Data:** Owned by UID:GID `33:33`.
-- **SELinux:** All host paths must be labeled with `svirt_sandbox_file_t`.
 
 ### 5. Networking
 - **Host:** `192.168.15.15`.
@@ -67,4 +66,6 @@ Each application must manage its own lifecycle within a single file located at `
 ## Operational Guidelines
 - **GitOps First:** Always commit and push changes to the `main` branch. ArgoCD will automatically sync the cluster state.
 - **Validation:** Always run `make test` after structural changes.
+- **Cleanup:** For a clean state, use `make teardown` followed by `make install`.
+
 - **Cleanup:** For a clean state, use `make teardown` followed by `make install`.

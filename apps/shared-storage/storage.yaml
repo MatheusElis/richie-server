@@ -6,7 +6,7 @@ spec:
   capacity: {storage: 100Gi}
   accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: /home/elis/data/downloads}
+  hostPath: {path: $HOME/data/downloads}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -27,7 +27,7 @@ spec:
   capacity: {storage: 100Gi}
   accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: /home/elis/data/media}
+  hostPath: {path: $HOME/data/media}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -48,7 +48,7 @@ spec:
   capacity: {storage: 100Gi}
   accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: /home/elis/data/nextcloud-data}
+  hostPath: {path: $HOME/data/nextcloud-data}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

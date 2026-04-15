@@ -48,10 +48,14 @@ echo "--- 2.2 Ajustando permissões para o Nextcloud (UID 33) ---"
 sudo chown -R 33:33 "$BASE_DATA_PATH/nextcloud-data"
 sudo chmod -R 775 "$BASE_DATA_PATH/nextcloud-data"
 
-echo "--- 3. Configurando SELinux ---"
-if command -v semanage &> /dev/null; then
-  sudo semanage fcontext -a -t svirt_sandbox_file_t "$BASE_DATA_PATH(/.*)?" || true
-  sudo restorecon -Rv "$BASE_DATA_PATH"
+echo "--- 3. Configurando Firewall ---"
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw allow 6443/tcp
+sudo ufw reload
+
+echo "--- ✅ Setup inicial do Ubuntu concluído! ---"
+recon -Rv "$BASE_DATA_PATH"
 else
   echo "Aviso: semanage não encontrado. Usando chcon como fallback."
   sudo chcon -Rt svirt_sandbox_file_t "$BASE_DATA_PATH"

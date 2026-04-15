@@ -5,7 +5,7 @@ metadata:
 spec:
   capacity: {storage: 20Gi}
   accessModes: [ReadWriteMany]
-  hostPath: {path: /home/elis/data/configs/postgres}
+  hostPath: {path: $HOME/data/configs/postgres}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -25,7 +25,7 @@ metadata:
   namespace: infra
 data:
   init.sql: |
-    -- Criar bancos de dados (usuário BASE_USER já será dono pois é o root do container)
+    -- Criar bancos de dados (usuário root já será dono pois é o dono do container)
     CREATE DATABASE joplin;
     CREATE DATABASE nextcloud;
 ---

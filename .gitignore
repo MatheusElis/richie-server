@@ -2,6 +2,8 @@
 *.key
 *.pem
 *-secret-plain.yaml
+.env
+bootstrap/.env
 
 # Temporários
 *.tmp
