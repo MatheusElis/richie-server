@@ -47,7 +47,7 @@ spec:
       volumes:
       - name: data
         persistentVolumeClaim:
-          claimName: nextcloud-pvc
+          claimName: data-pvc
       - name: config
         persistentVolumeClaim:
           claimName: filebrowser-config-pvc

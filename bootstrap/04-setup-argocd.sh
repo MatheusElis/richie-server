@@ -11,12 +11,12 @@ else
 fi
 
 # Tenta ler o token do .env ou do arquivo fallback /home/elis/github_token
-if [ -z "$GITHUB_TOKEN" ]; then
+if [ -z "$GITHUB_AUTH_TOKEN" ]; then
     if [ -f "/home/elis/github_token" ]; then
-        echo "Lendo GITHUB_TOKEN de /home/elis/github_token"
-        GITHUB_TOKEN=$(cat /home/elis/github_token)
+        echo "Lendo GITHUB_AUTH_TOKEN de /home/elis/github_token"
+        GITHUB_AUTH_TOKEN=$(cat /home/elis/github_token)
     else
-        echo "Erro: GITHUB_TOKEN não definido e /home/elis/github_token não encontrado!"
+        echo "Erro: GITHUB_AUTH_TOKEN não definido e /home/elis/github_token não encontrado!"
         exit 1
     fi
 fi
@@ -47,7 +47,7 @@ metadata:
 stringData:
   type: git
   url: $REPO_URL
-  password: $GITHUB_TOKEN
+  password: $GITHUB_AUTH_TOKEN
   username: git
 EOF
 

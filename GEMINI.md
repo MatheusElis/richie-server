@@ -59,7 +59,7 @@ Each application must manage its own lifecycle within a single file located at `
 - **Nextcloud Data:** Owned by UID:GID `33:33`.
 
 ### 5. Networking
-- **Host:** `192.168.15.15`.
+- **Host:** `192.168.31.55`.
 - **Domain:** `*.cusin-server.duckdns.org`.
 - **Protocol:** Always use HTTPS via Traefik Ingress. Applications should generally run in HTTP mode internally (use `--insecure` for ArgoCD).
 

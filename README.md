@@ -3,7 +3,7 @@
 Este repositório contém a infraestrutura completa do meu homelab, projetada com foco em automação (Makefile), rastreabilidade (GitOps individualizado) e simplicidade.
 
 ## 🚀 Arquitetura do Sistema
-- **SO**: Fedora Server (IP Fixo: `192.168.15.15`).
+- **SO**: Ubuntu Server (IP Fixo: `192.168.31.55`).
 - **Orquestração**: [k3s](https://k3s.io/) (Kubernetes leve).
 - **GitOps**: [ArgoCD](https://argoproj.github.io/cd/) seguindo o padrão **App of Apps**.
 - **Ingress**: Traefik (nativo do k3s) com HTTPS local.

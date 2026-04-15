@@ -1,43 +1,22 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: downloads-pv
+  name: data-pv
 spec:
-  capacity: {storage: 100Gi}
+  capacity: {storage: 500Gi}
   accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: $HOME/data/downloads}
+  hostPath: {path: $HOME/data}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: downloads-pvc
-  namespace: media
+  name: data-pvc
+  namespace: apps
 spec:
   accessModes: [ReadWriteMany]
-  resources: {requests: {storage: 100Gi}}
-  volumeName: downloads-pv
-  storageClassName: ""
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: media-pv
-spec:
-  capacity: {storage: 100Gi}
-  accessModes: [ReadWriteMany]
-  persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: $HOME/data/media}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: media-pvc
-  namespace: media
-spec:
-  accessModes: [ReadWriteMany]
-  resources: {requests: {storage: 100Gi}}
-  volumeName: media-pv
+  resources: {requests: {storage: 500Gi}}
+  volumeName: data-pv
   storageClassName: ""
 ---
 apiVersion: v1
