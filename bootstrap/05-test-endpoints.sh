@@ -10,7 +10,7 @@ else
 fi
 
 echo "--- ⏳ Aguardando 120 segundos para estabilização final do cluster... ---"
-sleep 120
+sleep 360
 
 echo -e "\n--- 🔍 Testando Endpoints via Ingress ---"
 
