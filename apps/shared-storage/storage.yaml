@@ -6,7 +6,7 @@ spec:
   capacity: {storage: 500Gi}
   accessModes: [ReadWriteMany]
   persistentVolumeReclaimPolicy: Retain
-  hostPath: {path: $HOME/data}
+  hostPath: {path: /home/elis/data}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
