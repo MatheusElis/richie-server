@@ -67,5 +67,9 @@ Each application must manage its own lifecycle within a single file located at `
 - **GitOps First:** Always commit and push changes to the `main` branch. ArgoCD will automatically sync the cluster state.
 - **Validation:** Always run `make test` after structural changes.
 - **Cleanup:** For a clean state, use `make teardown` followed by `make install`.
+al Guidelines
+- **GitOps First:** Always commit and push changes to the `main` branch. ArgoCD will automatically sync the cluster state.
+- **Validation:** Always run `make test` after structural changes.
+- **Cleanup:** For a clean state, use `make teardown` followed by `make install`.
 
 - **Cleanup:** For a clean state, use `make teardown` followed by `make install`.

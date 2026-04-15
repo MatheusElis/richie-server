@@ -89,6 +89,10 @@ Acesse via rede local (aceitando o certificado autoassinado):
 ---
 
 ## ⚠️ Dicas de Resolução de Problemas
-- **SELinux**: Se uma app não conseguir escrever, rode `sudo restorecon -Rv /home/elis/data`.
+- **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
+- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
+licação.
+- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
+estorecon -Rv /home/elis/data`.
 - **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
 - **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
