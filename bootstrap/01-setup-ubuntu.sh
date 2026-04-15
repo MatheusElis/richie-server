@@ -1,5 +1,5 @@
 #!/bin/bash
-# 01-setup-fedora.sh: Prepara o SO Fedora para rodar o Homelab
+# 01-setup-ubuntu.sh: Prepara o SO Ubuntu para rodar o Homelab
 set -e
 
 # Carrega variáveis
@@ -55,15 +55,3 @@ sudo ufw allow 6443/tcp
 sudo ufw reload
 
 echo "--- ✅ Setup inicial do Ubuntu concluído! ---"
-recon -Rv "$BASE_DATA_PATH"
-else
-  echo "Aviso: semanage não encontrado. Usando chcon como fallback."
-  sudo chcon -Rt svirt_sandbox_file_t "$BASE_DATA_PATH"
-fi
-
-echo "--- 4. Configurando Firewall ---"
-sudo firewall-cmd --add-service=http --add-service=https --permanent
-sudo firewall-cmd --add-port=6443/tcp --permanent
-sudo firewall-cmd --reload
-
-echo "--- ✅ Setup inicial do Fedora concluído! ---"

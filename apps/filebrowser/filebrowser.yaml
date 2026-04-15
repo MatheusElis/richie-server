@@ -5,7 +5,7 @@ metadata:
 spec:
   capacity: {storage: 5Gi}
   accessModes: [ReadWriteMany]
-  hostPath: {path: $HOME/data/configs/filebrowser}
+  hostPath: {path: /home/elis/data/configs/filebrowser}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
