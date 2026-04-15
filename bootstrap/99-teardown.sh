@@ -6,7 +6,7 @@ set -e
 if [ -f .env ]; then
   source .env
 else
-  BASE_DATA_PATH="$HOME/data"
+  BASE_DATA_PATH="/home/elis/data"
 fi
 
 echo "🛑 ATENÇÃO: Isso apagará TODOS os contêineres, o cluster Kubernetes e a pasta $BASE_DATA_PATH (incluindo mídias e configs)."
