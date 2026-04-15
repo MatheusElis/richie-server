@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: filebrowser
-        image: filebrowser/filebrowser:latest
+        image: filebrowser/filebrowser:v2.63.2
         ports:
         - containerPort: 80
         args: ["--port", "80", "--database", "/config/filebrowser.db", "--root", "/data"]

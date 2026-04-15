@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: calibre
-        image: linuxserver/calibre:latest
+        image: linuxserver/calibre:version-v9.7.0
         env:
         - name: PUID
           value: "1000"

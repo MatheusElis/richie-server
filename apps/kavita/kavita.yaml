@@ -39,7 +39,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: kavita
-        image: jvmilazz0/kavita:latest
+        image: jvmilazz0/kavita:0.8.9
         env:
         - name: PUID
           value: "1000"
