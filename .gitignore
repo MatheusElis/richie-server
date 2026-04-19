@@ -8,3 +8,6 @@ bootstrap/.env
 # Temporários
 *.tmp
 .DS_Store
+
+# Backup da Master Key do Sealed Secrets
+master-key-backup.yaml
