@@ -1,0 +1,8 @@
+---
+- name: Bootstrap Homelab — OS + K3s
+  hosts: all
+  become: true
+  roles:
+    - common
+    - k3s
+    - sealed-secrets

@@ -1,0 +1,49 @@
+---
+- name: Instalar pacotes base
+  apt:
+    name:
+      - curl
+      - git
+      - make
+      - apt-transport-https
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Configurar timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Desabilitar swap imediatamente
+  command: swapoff -a
+  changed_when: false
+
+- name: Remover swap do fstab permanentemente
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\s+swap\s+.*)$'
+    replace: '# \1'
+
+- name: Configurar parâmetros do kernel para Kubernetes
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: "vm.swappiness", value: "0" }
+    - { key: "fs.inotify.max_user_instances", value: "512" }
+    - { key: "fs.inotify.max_user_watches", value: "524288" }
+
+- name: Criar diretórios do homelab em /opt/homelab
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ k3s_user }}"
+    group: "{{ k3s_user }}"
+    mode: "0755"
+  loop:
+    - "{{ homelab_data_dir }}"
+    - "{{ homelab_data_dir }}/data"
+    - "{{ homelab_data_dir }}/data/postgresql"
+    - "{{ homelab_data_dir }}/media"

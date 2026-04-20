@@ -1,0 +1,5 @@
+k3s_version: "v1.32.3+k3s1"
+k3s_user: "elis"
+timezone: "America/Sao_Paulo"
+homelab_data_dir: "/opt/homelab"
+sealed_secrets_key_path: "{{ lookup('env', 'HOME') }}/.homelab/sealed-secrets-key.yaml"

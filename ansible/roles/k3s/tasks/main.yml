@@ -1,0 +1,52 @@
+---
+- name: Verificar se K3s já está instalado
+  stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Baixar e instalar K3s
+  shell: |
+    curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ k3s_version }}" sh -s - \
+      --disable=traefik \
+      --disable=servicelb
+  args:
+    creates: /usr/local/bin/k3s
+  when: not k3s_binary.stat.exists
+
+- name: Garantir que o serviço K3s está ativo e habilitado
+  systemd:
+    name: k3s
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Aguardar o K3s estar pronto
+  command: k3s kubectl get nodes
+  register: k3s_nodes
+  retries: 15
+  delay: 10
+  until: k3s_nodes.rc == 0
+  changed_when: false
+
+- name: Criar diretório .kube para o usuário
+  file:
+    path: "/home/{{ k3s_user }}/.kube"
+    state: directory
+    owner: "{{ k3s_user }}"
+    group: "{{ k3s_user }}"
+    mode: "0700"
+
+- name: Copiar kubeconfig para o usuário
+  copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/{{ k3s_user }}/.kube/config"
+    remote_src: true
+    owner: "{{ k3s_user }}"
+    group: "{{ k3s_user }}"
+    mode: "0600"
+
+- name: Ajustar servidor no kubeconfig para localhost
+  replace:
+    path: "/home/{{ k3s_user }}/.kube/config"
+    regexp: 'https://127\.0\.0\.1:6443'
+    replace: 'https://127.0.0.1:6443'
