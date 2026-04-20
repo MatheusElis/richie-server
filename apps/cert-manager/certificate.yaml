@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-bisnaguete-xyz
+  namespace: cert-manager
+spec:
+  secretName: wildcard-bisnaguete-xyz-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: "*.bisnaguete.xyz"
+  dnsNames:
+    - "*.bisnaguete.xyz"
+    - "bisnaguete.xyz"

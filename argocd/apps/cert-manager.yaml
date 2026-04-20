@@ -9,10 +9,18 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/MatheusElis/richie-server
-    targetRevision: HEAD
-    path: apps/cert-manager
+  sources:
+    - repoURL: https://charts.jetstack.io
+      chart: cert-manager
+      targetRevision: "v1.17.1"
+      helm:
+        releaseName: cert-manager
+        parameters:
+          - name: crds.enabled
+            value: "true"
+    - repoURL: https://github.com/MatheusElis/richie-server
+      targetRevision: HEAD
+      path: apps/cert-manager
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager
@@ -22,3 +30,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true

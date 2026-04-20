@@ -22,15 +22,9 @@ _Vazio_
 
 ## To Do
 
-- [KB-002](kanban/cards/KB-002.md) — Ansible Playbook: Configuração do OS e K3s
-- [KB-003](kanban/cards/KB-003.md) — Bootstrap do ArgoCD
-- [KB-004](kanban/cards/KB-004.md) — ArgoCD App of Apps
-- [KB-005](kanban/cards/KB-005.md) — Makefile: Ponto de Entrada `make install`
-- [KB-006](kanban/cards/KB-006.md) — Ingress com Traefik
-- [KB-007](kanban/cards/KB-007.md) — cert-manager + Cloudflare DNS-01
-- [KB-008](kanban/cards/KB-008.md) — Sealed Secrets
 - [KB-009](kanban/cards/KB-009.md) — Primeira Aplicação: Glance (Homepage)
 - [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
+- [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 
 ---
 
@@ -42,7 +36,7 @@ _Sem itens no momento._
 
 ## Review (max: 3)
 
-- [KB-006](kanban/cards/KB-006.md) — Ingress com Traefik
+_Sem itens no momento._
 
 ---
 
@@ -53,6 +47,8 @@ _Sem itens no momento._
 - [KB-003](kanban/cards/KB-003.md) — Bootstrap do ArgoCD
 - [KB-004](kanban/cards/KB-004.md) — ArgoCD App of Apps
 - [KB-005](kanban/cards/KB-005.md) — Makefile: Ponto de Entrada `make install`
+- [KB-006](kanban/cards/KB-006.md) — Ingress com Traefik
+- [KB-007](kanban/cards/KB-007.md) — cert-manager + Cloudflare DNS-01
 - [KB-008](kanban/cards/KB-008.md) — Sealed Secrets
 
 ---
