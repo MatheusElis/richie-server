@@ -42,7 +42,7 @@ _Sem itens no momento._
 
 ## Review (max: 3)
 
-- [KB-005](kanban/cards/KB-005.md) — Makefile: Ponto de Entrada `make install`
+- [KB-003](kanban/cards/KB-003.md) — Bootstrap do ArgoCD
 
 ---
 
@@ -50,6 +50,7 @@ _Sem itens no momento._
 
 - [KB-001](kanban/cards/KB-001.md) — Estrutura do Repositório
 - [KB-002](kanban/cards/KB-002.md) — Ansible Playbook: Configuração do OS e K3s
+- [KB-005](kanban/cards/KB-005.md) — Makefile: Ponto de Entrada `make install`
 
 ---
 

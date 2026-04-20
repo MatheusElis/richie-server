@@ -1,0 +1,19 @@
+server:
+  # Sem UI exposta diretamente — acesso via Traefik após KB-006
+  extraArgs:
+    - --insecure
+
+configs:
+  params:
+    server.insecure: true
+
+  # Repositório Git como fonte
+  repositories:
+    richie-server:
+      url: https://github.com/MatheusElis/richie-server
+      name: richie-server
+      type: git
+
+crds:
+  install: true
+  keep: true
