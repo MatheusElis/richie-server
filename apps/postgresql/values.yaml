@@ -20,4 +20,4 @@ primary:
       memory: "512Mi"
 
 volumePermissions:
-  enabled: true
+  enabled: false
