@@ -18,7 +18,7 @@
     helm upgrade --install argocd argo/argo-cd
     --namespace argocd
     --version "{{ argocd_chart_version }}"
-    --values {{ playbook_dir }}/../argocd/bootstrap/values.yaml
+    --values {{ project_root }}/argocd/bootstrap/values.yaml
     --wait
   environment:
     KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
@@ -33,7 +33,7 @@
 
 - name: Aplicar root-app (App of Apps)
   command: >
-    kubectl apply -f {{ playbook_dir }}/../argocd/bootstrap/root-app.yaml
+    kubectl apply -f {{ project_root }}/argocd/bootstrap/root-app.yaml
   environment:
     KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
 
