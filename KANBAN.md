@@ -42,7 +42,7 @@ _Sem itens no momento._
 
 ## Review (max: 3)
 
-- [KB-008](kanban/cards/KB-008.md) — Sealed Secrets
+- [KB-006](kanban/cards/KB-006.md) — Ingress com Traefik
 
 ---
 
@@ -53,6 +53,7 @@ _Sem itens no momento._
 - [KB-003](kanban/cards/KB-003.md) — Bootstrap do ArgoCD
 - [KB-004](kanban/cards/KB-004.md) — ArgoCD App of Apps
 - [KB-005](kanban/cards/KB-005.md) — Makefile: Ponto de Entrada `make install`
+- [KB-008](kanban/cards/KB-008.md) — Sealed Secrets
 
 ---
 

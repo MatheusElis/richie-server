@@ -9,10 +9,17 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
-  source:
-    repoURL: https://github.com/MatheusElis/richie-server
-    targetRevision: HEAD
-    path: apps/traefik
+  sources:
+    - repoURL: https://helm.traefik.io/traefik
+      chart: traefik
+      targetRevision: "33.2.1"
+      helm:
+        releaseName: traefik
+        valueFiles:
+          - $values/apps/traefik/values.yaml
+    - repoURL: https://github.com/MatheusElis/richie-server
+      targetRevision: HEAD
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: traefik

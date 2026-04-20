@@ -1,0 +1,43 @@
+deployment:
+  replicas: 1
+
+service:
+  type: LoadBalancer
+  spec:
+    externalIPs:
+      - 192.168.31.55
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+
+ingressRoute:
+  dashboard:
+    enabled: false  # gerenciado via Ingress padrão abaixo
+
+ports:
+  web:
+    redirectTo:
+      port: websecure
+  websecure:
+    tls:
+      enabled: true
+
+additionalArguments:
+  - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+  - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+  - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+  - "--api.dashboard=true"
+  - "--api.insecure=false"
+
+logs:
+  general:
+    level: INFO
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "200m"
+    memory: "128Mi"
