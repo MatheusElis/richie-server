@@ -102,7 +102,7 @@ deps: ## Verifica e instala ferramentas necessárias (ansible, helm, kubeseal)
 _check-ansible:
 	@if ! command -v ansible-playbook &>/dev/null; then \
 		echo "📦 Instalando Ansible..."; \
-		pip3 install --user ansible; \
+		pip install --user ansible; \
 	else \
 		echo "  ✓ ansible $(shell ansible --version | head -1 | awk '{print $$3}' | tr -d ']')"; \
 	fi
