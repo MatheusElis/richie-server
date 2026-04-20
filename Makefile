@@ -41,19 +41,23 @@ gen-keys: ## Gera o par de chaves do Sealed Secrets (executar uma vez no primeir
 	fi
 	@openssl genrsa -out /tmp/ss-key.pem 4096
 	@openssl req -new -x509 -key /tmp/ss-key.pem \
-		-out /tmp/ss-cert.pem \
+		-out $(HOME)/.homelab/sealed-secrets-cert.pem \
 		-days 3650 \
 		-subj "/CN=sealed-secret/O=sealed-secret"
 	@kubectl create secret tls sealed-secrets-key \
 		--namespace kube-system \
-		--cert=/tmp/ss-cert.pem \
+		--cert=$(HOME)/.homelab/sealed-secrets-cert.pem \
 		--key=/tmp/ss-key.pem \
 		--dry-run=client -o yaml \
 		| kubectl label --local -f - \
 		sealedsecrets.bitnami.com/sealed-secrets-key=active \
 		-o yaml > $(SEALED_SECRETS_KEY)
-	@rm -f /tmp/ss-key.pem /tmp/ss-cert.pem
-	@echo "✅ Chave salva em $(SEALED_SECRETS_KEY)"
+	@rm -f /tmp/ss-key.pem
+	@echo "✅ Chave privada salva em $(SEALED_SECRETS_KEY)"
+	@echo "✅ Certificado público salvo em $(HOME)/.homelab/sealed-secrets-cert.pem"
+	@echo ""
+	@echo "Para encriptar secrets use:"
+	@echo "  kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > sealed-secret.yaml"
 
 .PHONY: rotate-keys
 rotate-keys: ## Gera novas chaves e re-encripta todos os SealedSecrets do repo

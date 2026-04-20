@@ -15,6 +15,6 @@ Thumbs.db
 ansible/*.retry
 ansible/**/*.retry
 
-# Sealed Secrets — chave mestra
+# Sealed Secrets — chave mestra e certificado
 master-key-backup.yaml
 ~/.homelab/
