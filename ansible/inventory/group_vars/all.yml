@@ -6,3 +6,4 @@ sealed_secrets_key_path: "{{ lookup('env', 'HOME') }}/.homelab/sealed-secrets-ke
 argocd_chart_version: "7.8.26"
 argocd_namespace: "argocd"
 argocd_repo_url: "https://github.com/MatheusElis/richie-server"
+project_root: "{{ lookup('env', 'HOME') }}/richie-server"
