@@ -39,22 +39,33 @@ gen-keys: ## Gera o par de chaves do Sealed Secrets (executar uma vez no primeir
 		echo "⚠️  Chave já existe em $(SEALED_SECRETS_KEY). Use 'make rotate-keys' para rotacionar."; \
 		exit 1; \
 	fi
-	@openssl genrsa -out /tmp/ss-key.pem 4096
-	@openssl req -new -x509 -key /tmp/ss-key.pem \
+	@echo "🔑 Gerando par de chaves RSA 4096..."
+	@openssl genrsa -out $(HOME)/.homelab/sealed-secrets-key.pem 4096 2>/dev/null
+	@openssl req -new -x509 \
+		-key $(HOME)/.homelab/sealed-secrets-key.pem \
 		-out $(HOME)/.homelab/sealed-secrets-cert.pem \
 		-days 3650 \
-		-subj "/CN=sealed-secret/O=sealed-secret"
-	@kubectl create secret tls sealed-secrets-key \
-		--namespace kube-system \
-		--cert=$(HOME)/.homelab/sealed-secrets-cert.pem \
-		--key=/tmp/ss-key.pem \
-		--dry-run=client -o yaml \
-		| kubectl label --local -f - \
-		sealedsecrets.bitnami.com/sealed-secrets-key=active \
-		-o yaml > $(SEALED_SECRETS_KEY)
-	@rm -f /tmp/ss-key.pem
+		-subj "/CN=sealed-secret/O=sealed-secret" 2>/dev/null
+	@KEY_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-key.pem); \
+	CERT_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-cert.pem); \
+	cat > $(SEALED_SECRETS_KEY) <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sealed-secrets-key
+  namespace: kube-system
+  labels:
+    sealedsecrets.bitnami.com/sealed-secrets-key: active
+type: kubernetes.io/tls
+data:
+  tls.crt: $$CERT_B64
+  tls.key: $$KEY_B64
+EOF
+	@rm -f $(HOME)/.homelab/sealed-secrets-key.pem
 	@echo "✅ Chave privada salva em $(SEALED_SECRETS_KEY)"
 	@echo "✅ Certificado público salvo em $(HOME)/.homelab/sealed-secrets-cert.pem"
+	@echo ""
+	@echo "⚠️  Faça backup de $(SEALED_SECRETS_KEY) em local seguro antes de continuar!"
 	@echo ""
 	@echo "Para encriptar secrets use:"
 	@echo "  kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > sealed-secret.yaml"
