@@ -1,0 +1,49 @@
+---
+- name: Adicionar repositório Helm do ArgoCD
+  command: helm repo add argo https://argoproj.github.io/argo-helm
+  changed_when: false
+
+- name: Atualizar repositórios Helm
+  command: helm repo update
+  changed_when: false
+
+- name: Criar namespace argocd
+  command: kubectl create namespace argocd
+  register: ns_result
+  failed_when: ns_result.rc != 0 and 'already exists' not in ns_result.stderr
+  changed_when: ns_result.rc == 0
+
+- name: Instalar/atualizar ArgoCD via Helm
+  command: >
+    helm upgrade --install argocd argo/argo-cd
+    --namespace argocd
+    --version "{{ argocd_chart_version }}"
+    --values {{ playbook_dir }}/../argocd/bootstrap/values.yaml
+    --wait
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Aguardar ArgoCD server estar pronto
+  command: >
+    kubectl rollout status deployment/argocd-server
+    -n argocd --timeout=180s
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: false
+
+- name: Aplicar root-app (App of Apps)
+  command: >
+    kubectl apply -f {{ playbook_dir }}/../argocd/bootstrap/root-app.yaml
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Validar pods do ArgoCD
+  command: >
+    kubectl get pods -n argocd --field-selector=status.phase=Running
+  register: argocd_pods
+  retries: 10
+  delay: 15
+  until: argocd_pods.rc == 0
+  changed_when: false
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"

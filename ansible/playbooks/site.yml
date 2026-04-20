@@ -1,0 +1,13 @@
+---
+- name: Bootstrap Homelab — OS + K3s + ArgoCD
+  hosts: all
+  become: true
+  roles:
+    - role: common
+      tags: common
+    - role: k3s
+      tags: k3s
+    - role: sealed-secrets
+      tags: sealed-secrets
+    - role: argocd
+      tags: argocd

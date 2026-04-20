@@ -1,0 +1,46 @@
+---
+- name: Verificar se a chave do Sealed Secrets existe localmente
+  stat:
+    path: "{{ sealed_secrets_key_path }}"
+  register: sealed_secrets_key
+  become: false
+
+- name: Criar diretório ~/.homelab se não existir
+  file:
+    path: "{{ lookup('env', 'HOME') }}/.homelab"
+    state: directory
+    mode: "0700"
+  become: false
+
+# --- Cenário: chave existe (rebuild de hardware) ---
+- name: Restaurar chave do Sealed Secrets no cluster
+  command: >
+    k3s kubectl apply -f {{ sealed_secrets_key_path }}
+  when: sealed_secrets_key.stat.exists
+  become: true
+
+# --- Cenário: chave não existe (primeiro setup) ---
+- name: Aguardar o controller do Sealed Secrets subir (primeiro setup)
+  command: >
+    k3s kubectl rollout status deployment/sealed-secrets-controller
+    -n kube-system --timeout=120s
+  when: not sealed_secrets_key.stat.exists
+  retries: 5
+  delay: 15
+  register: ss_ready
+  until: ss_ready.rc == 0
+  changed_when: false
+  ignore_errors: true
+
+- name: Exportar chave gerada pelo cluster para ~/.homelab
+  shell: |
+    k3s kubectl get secret \
+      -n kube-system \
+      -l sealedsecrets.bitnami.com/sealed-secrets-key=active \
+      -o yaml > {{ sealed_secrets_key_path }}
+  when:
+    - not sealed_secrets_key.stat.exists
+    - ss_ready is defined
+    - ss_ready.rc is defined
+    - ss_ready.rc == 0
+  become: false

@@ -1,30 +1,136 @@
-# Makefile para automação do Homelab
+ANSIBLE_PLAYBOOK = ansible/playbooks/site.yml
+ANSIBLE_INVENTORY = ansible/inventory/hosts.yml
+ANSIBLE_CMD       = ansible-playbook -i $(ANSIBLE_INVENTORY)
 
-.PHONY: setup-os install-k3s setup-auth setup-argocd test teardown install
+SEALED_SECRETS_KEY ?= $(HOME)/.homelab/sealed-secrets-key.yaml
+KUBESEAL_VERSION   = 0.27.0
 
-# Atalho para executar todos os passos de instalação
-install: setup-os install-k3s setup-auth setup-argocd test
+.DEFAULT_GOAL := help
 
-setup-os:
-	@echo "--- 🛠️ Preparando Sistema Operacional Ubuntu ---"
-	cd bootstrap && ./01-setup-ubuntu.sh
+##@ Fluxo Principal
 
-install-k3s:
-	@echo "--- ☸️ Instalando Cluster k3s ---"
-	cd bootstrap && ./02-install-k3s.sh
+.PHONY: install
+install: deps ## Instala tudo do zero: OS + K3s + ArgoCD
+	$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK)
 
-setup-auth:
-	@echo "--- 🔐 Configurando Autenticação Global ---"
-	cd bootstrap && ./03-setup-auth.sh
+.PHONY: reset
+reset: uninstall install ## Derruba e recria o cluster completo
 
-setup-argocd:
-	@echo "--- 🚢 Iniciando GitOps com ArgoCD ---"
-	cd bootstrap && ./04-setup-argocd.sh
+##@ Targets Individuais
 
-test:
-	@echo "--- 🧪 Validando Endpoints das Aplicações ---"
-	cd bootstrap && ./05-test-endpoints.sh
+.PHONY: os
+os: ## Configura o OS (role common)
+	$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) --tags common
 
-teardown:
-	@echo "--- 🧨 Removendo toda a infraestrutura ---"
-	cd bootstrap && ./99-teardown.sh
+.PHONY: k3s
+k3s: ## Instala/configura o K3s (role k3s)
+	$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) --tags k3s
+
+.PHONY: argocd
+argocd: ## Faz o bootstrap do ArgoCD no cluster
+	$(ANSIBLE_CMD) $(ANSIBLE_PLAYBOOK) --tags argocd
+
+##@ Secrets
+
+.PHONY: gen-keys
+gen-keys: ## Gera o par de chaves do Sealed Secrets (executar uma vez no primeiro setup)
+	@mkdir -p $(HOME)/.homelab
+	@if [ -f "$(SEALED_SECRETS_KEY)" ]; then \
+		echo "⚠️  Chave já existe em $(SEALED_SECRETS_KEY). Use 'make rotate-keys' para rotacionar."; \
+		exit 1; \
+	fi
+	@openssl genrsa -out /tmp/ss-key.pem 4096
+	@openssl req -new -x509 -key /tmp/ss-key.pem \
+		-out $(HOME)/.homelab/sealed-secrets-cert.pem \
+		-days 3650 \
+		-subj "/CN=sealed-secret/O=sealed-secret"
+	@kubectl create secret tls sealed-secrets-key \
+		--namespace kube-system \
+		--cert=$(HOME)/.homelab/sealed-secrets-cert.pem \
+		--key=/tmp/ss-key.pem \
+		--dry-run=client -o yaml \
+		| kubectl label --local -f - \
+		sealedsecrets.bitnami.com/sealed-secrets-key=active \
+		-o yaml > $(SEALED_SECRETS_KEY)
+	@rm -f /tmp/ss-key.pem
+	@echo "✅ Chave privada salva em $(SEALED_SECRETS_KEY)"
+	@echo "✅ Certificado público salvo em $(HOME)/.homelab/sealed-secrets-cert.pem"
+	@echo ""
+	@echo "Para encriptar secrets use:"
+	@echo "  kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > sealed-secret.yaml"
+
+.PHONY: rotate-keys
+rotate-keys: ## Gera novas chaves e re-encripta todos os SealedSecrets do repo
+	@echo "🔄 Gerando nova chave..."
+	@rm -f $(SEALED_SECRETS_KEY)
+	@$(MAKE) gen-keys
+	@echo "🔄 Aplicando nova chave no cluster..."
+	@kubectl apply -f $(SEALED_SECRETS_KEY)
+	@kubectl rollout restart deployment/sealed-secrets-controller -n kube-system
+	@echo "🔄 Re-encriptando todos os SealedSecrets..."
+	@find . -name "sealed-secret.yaml" | while read f; do \
+		dir=$$(dirname $$f); \
+		echo "  → $$f"; \
+		kubeseal --re-encrypt < $$f > $$f.tmp && mv $$f.tmp $$f; \
+	done
+	@echo "✅ Rotação concluída. Faça commit dos arquivos atualizados."
+
+##@ Remoção
+
+.PHONY: uninstall
+uninstall: ## Remove o K3s preservando ~/.homelab/ e /opt/homelab/
+	@echo "⚠️  Removendo K3s..."
+	@if [ -f /usr/local/bin/k3s-uninstall.sh ]; then \
+		sudo /usr/local/bin/k3s-uninstall.sh; \
+	else \
+		echo "K3s não encontrado, nada a remover."; \
+	fi
+	@rm -f $(HOME)/.kube/config
+	@echo "✅ K3s removido. Dados em /opt/homelab/ e $(HOME)/.homelab/ preservados."
+
+##@ Dependências
+
+.PHONY: deps
+deps: ## Verifica e instala ferramentas necessárias (ansible, helm, kubeseal)
+	@echo "🔍 Verificando dependências..."
+	@$(MAKE) _check-ansible
+	@$(MAKE) _check-helm
+	@$(MAKE) _check-kubeseal
+	@echo "✅ Todas as dependências estão instaladas."
+
+.PHONY: _check-ansible
+_check-ansible:
+	@if ! command -v ansible-playbook &>/dev/null; then \
+		echo "📦 Instalando Ansible..."; \
+		pip3 install --user ansible; \
+	else \
+		echo "  ✓ ansible $(shell ansible --version | head -1 | awk '{print $$3}' | tr -d ']')"; \
+	fi
+
+.PHONY: _check-helm
+_check-helm:
+	@if ! command -v helm &>/dev/null; then \
+		echo "📦 Instalando Helm..."; \
+		curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash; \
+	else \
+		echo "  ✓ helm $(shell helm version --short 2>/dev/null)"; \
+	fi
+
+.PHONY: _check-kubeseal
+_check-kubeseal:
+	@if ! command -v kubeseal &>/dev/null; then \
+		echo "📦 Instalando kubeseal v$(KUBESEAL_VERSION)..."; \
+		curl -fsSL https://github.com/bitnami-labs/sealed-secrets/releases/download/v$(KUBESEAL_VERSION)/kubeseal-$(KUBESEAL_VERSION)-linux-amd64.tar.gz \
+			| tar xz -C /tmp kubeseal; \
+		sudo mv /tmp/kubeseal /usr/local/bin/kubeseal; \
+	else \
+		echo "  ✓ kubeseal $(shell kubeseal --version 2>/dev/null | awk '{print $$NF}')"; \
+	fi
+
+##@ Utilitários
+
+.PHONY: help
+help: ## Mostra este menu de ajuda
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUso:\n  make \033[36m<target>\033[0m\n"} \
+		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2 } \
+		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)

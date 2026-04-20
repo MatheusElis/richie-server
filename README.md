@@ -1,98 +1,53 @@
-# Richie Homelab - GitOps Profissional com k3s e ArgoCD
+# richie-server — Homelab Kubernetes
 
-Este repositório contém a infraestrutura completa do meu homelab, projetada com foco em automação (Makefile), rastreabilidade (GitOps individualizado) e simplicidade.
+Cluster Kubernetes reproduzível em hardware single-node. Um único comando recria toda a infraestrutura do zero.
 
-## 🚀 Arquitetura do Sistema
-- **SO**: Ubuntu Server (IP Fixo: `192.168.31.55`).
-- **Orquestração**: [k3s](https://k3s.io/) (Kubernetes leve).
-- **GitOps**: [ArgoCD](https://argoproj.github.io/cd/) seguindo o padrão **App of Apps**.
-- **Ingress**: Traefik (nativo do k3s) com HTTPS local.
-- **Banco de Dados**: PostgreSQL centralizado (instância única para todas as aplicações).
-- **Armazenamento**: Persistência no host em `/home/elis/data/` com permissões automáticas.
-
----
-
-## 📁 Estrutura do Repositório
-```text
-.
-├── Makefile                # Comandos principais (install, teardown, test)
-├── bootstrap/              # Scripts bash de configuração inicial e SO
-├── clusters/               # Definições das aplicações para o ArgoCD
-│   ├── apps/               # Uma Application para cada serviço do usuário
-│   └── infra/              # Uma Application para cada componente base
-├── infra/                  # Manifestos da infraestrutura (Postgres, Certs)
-└── apps/                   # Manifestos das aplicações finais
-    ├── [app-name]/         # Pasta única contendo PV, PVC, Deploy, Service e Ingress
-    └── shared-storage/     # Volumes compartilhados (Media e Downloads)
+```bash
+make install
 ```
 
----
+## Pré-requisitos
 
-## 🛠️ Operação Básica (Makefile)
+- Ubuntu 24.04 LTS
+- Acesso SSH ou execução local com sudo
+- Chave do Sealed Secrets gerada (`make gen-keys`)
 
-O ciclo de vida do homelab é gerenciado pelo `Makefile` na raiz:
+## Documentação
 
-- **Instalação Total**: `make install`
-  *(Prepara o Fedora, instala k3s, configura autenticação, sobe o ArgoCD e testa tudo)*.
-- **Limpeza Total (Reset)**: `make teardown`
-  *(Desinstala o cluster e apaga todos os dados em /home/elis/data)*.
-- **Validar Saúde**: `make test`
-  *(Executa testes de curl em todos os endpoints de Ingress)*.
+| Documento | Descrição |
+|-----------|-----------|
+| [docs/arquitetura.md](docs/arquitetura.md) | Visão geral da stack e decisões técnicas |
+| [docs/acesso.md](docs/acesso.md) | Como acessar os serviços localmente |
+| [docs/como-adicionar-app.md](docs/como-adicionar-app.md) | Passo a passo para adicionar novo app via GitOps |
+| [docs/sealed-secrets.md](docs/sealed-secrets.md) | Como criar e gerenciar secrets |
+| [docs/hardware.md](docs/hardware.md) | Especificações do hardware |
 
----
+## Stack
 
-## 🔐 Usuários e Senhas
+| Camada | Ferramenta |
+|--------|-----------|
+| Orquestrador | Makefile |
+| Configuração OS + K3s | Ansible |
+| Kubernetes | K3s v1.32.3 |
+| GitOps | ArgoCD (App of Apps) |
+| Ingress | Traefik v3 |
+| TLS | cert-manager + Cloudflare DNS-01 |
+| Secrets | Sealed Secrets |
 
-O homelab utiliza um sistema de **Autenticação Global**. As credenciais são definidas no arquivo `bootstrap/.env` e injetadas no Kubernetes via Secret (`homelab-auth`).
+## Estrutura do Repositório
 
-### 1. Credenciais Predefinidas
-Atualmente configurado como:
-- **Usuário**: `elis`
-- **Senha**: `pamonha0312`
-
-### 2. Onde elas se aplicam?
-- **PostgreSQL**: Usuário root do banco.
-- **Nextcloud**: Usuário administrador criado automaticamente.
-- **Joplin**: Credenciais de conexão com o banco.
-- **ArgoCD**: O usuário inicial é `admin`. A senha deve ser obtida com:
-  `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo`
-
-*Nota: Aplicações como qBittorrent e Kavita possuem setups iniciais próprios (ex: admin/adminadmin).*
-
----
-
-## ➕ Como adicionar uma nova aplicação
-
-Para adicionar um novo serviço (ex: `my-app`):
-
-1. **Crie a pasta do app**: `mkdir -p apps/my-app`
-2. **Crie o manifesto consolidado**: `apps/my-app/my-app.yaml`
-   - Inclua no mesmo arquivo: `PersistentVolume` (apontando para `/home/elis/data/configs/my-app`), `PersistentVolumeClaim`, `Deployment`, `Service` e `Ingress`.
-3. **Crie a Application no Argo**: Crie `clusters/apps/my-app.yaml` apontando para `path: apps/my-app`.
-4. **Prepare a pasta no host**: Adicione a criação do diretório em `bootstrap/01-setup-fedora.sh`.
-5. **Commit e Push**: O ArgoCD detectará o novo arquivo em `clusters/apps/` e criará um novo card no painel automaticamente.
-
----
-
-## 🌐 Endpoints Disponíveis
-Acesse via rede local (aceitando o certificado autoassinado):
-
-- **Dashboard**: [https://homepage.cusin-server.duckdns.org](https://homepage.cusin-server.duckdns.org)
-- **GitOps (ArgoCD)**: [https://argocd.cusin-server.duckdns.org](https://argocd.cusin-server.duckdns.org)
-- **Arquivos**: [https://files.cusin-server.duckdns.org](https://files.cusin-server.duckdns.org)
-- **Nuvem**: [https://cloud.cusin-server.duckdns.org](https://cloud.cusin-server.duckdns.org)
-- **Torrent**: [https://qbittorrent.cusin-server.duckdns.org](https://qbittorrent.cusin-server.duckdns.org)
-- **Leitura**: [https://kavita.cusin-server.duckdns.org](https://kavita.cusin-server.duckdns.org)
-- **E-books**: [https://calibre.cusin-server.duckdns.org](https://calibre.cusin-server.duckdns.org)
-- **Notas**: [https://joplin.cusin-server.duckdns.org](https://joplin.cusin-server.duckdns.org)
-
----
-
-## ⚠️ Dicas de Resolução de Problemas
-- **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
-- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
-licação.
-- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
-estorecon -Rv /home/elis/data`.
-- **Sincronização**: Se o ArgoCD demorar a atualizar, use o botão **Refresh** no card da aplicação.
-- **Logs**: Use `kubectl logs -n apps -l app=[nome-do-app]` para investigar falhas.
+```
+richie-server/
+├── Makefile                    # Ponto de entrada único
+├── ansible/                    # Configuração do OS e bootstrap do K3s
+│   ├── inventory/
+│   ├── roles/
+│   └── playbooks/
+├── argocd/
+│   ├── bootstrap/              # Manifesto root-app (aplicado 1x pelo Ansible)
+│   └── apps/                   # Application CRDs — um arquivo por app
+├── apps/                       # Conteúdo de cada app (values, configmaps, manifests)
+│   └── <app>/
+├── secrets/                    # SealedSecrets compartilhados entre múltiplos apps
+└── docs/                       # Documentação técnica
+```
