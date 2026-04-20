@@ -29,6 +29,29 @@
   environment:
     KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
 
+- name: Anotar argocd-secret para ser gerenciado pelo SealedSecret controller
+  command: >
+    kubectl -n argocd annotate secret argocd-secret
+    sealedsecrets.bitnami.com/managed=true --overwrite
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: false
+
+- name: Forçar reconciliação — deletar argocd-secret para SealedSecret recriar
+  shell: |
+    kubectl -n argocd delete secret argocd-secret --ignore-not-found
+    sleep 5
+    kubectl -n argocd get secret argocd-secret
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: false
+
+- name: Reiniciar argocd-server para ler novo secret
+  command: kubectl -n argocd rollout restart deployment/argocd-server
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: true
+
 - name: Aguardar ArgoCD server estar pronto
   command: >
     kubectl rollout status deployment/argocd-server
