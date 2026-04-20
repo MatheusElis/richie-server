@@ -46,21 +46,9 @@ gen-keys: ## Gera o par de chaves do Sealed Secrets (executar uma vez no primeir
 		-out $(HOME)/.homelab/sealed-secrets-cert.pem \
 		-days 3650 \
 		-subj "/CN=sealed-secret/O=sealed-secret" 2>/dev/null
-	@KEY_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-key.pem); \
-	CERT_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-cert.pem); \
-	cat > $(SEALED_SECRETS_KEY) <<EOF
-apiVersion: v1
-kind: Secret
-metadata:
-  name: sealed-secrets-key
-  namespace: kube-system
-  labels:
-    sealedsecrets.bitnami.com/sealed-secrets-key: active
-type: kubernetes.io/tls
-data:
-  tls.crt: $$CERT_B64
-  tls.key: $$KEY_B64
-EOF
+	@KEY_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-key.pem) && \
+	CERT_B64=$$(base64 -w0 < $(HOME)/.homelab/sealed-secrets-cert.pem) && \
+	printf 'apiVersion: v1\nkind: Secret\nmetadata:\n  name: sealed-secrets-key\n  namespace: kube-system\n  labels:\n    sealedsecrets.bitnami.com/sealed-secrets-key: active\ntype: kubernetes.io/tls\ndata:\n  tls.crt: %s\n  tls.key: %s\n' "$$CERT_B64" "$$KEY_B64" > $(SEALED_SECRETS_KEY)
 	@rm -f $(HOME)/.homelab/sealed-secrets-key.pem
 	@echo "✅ Chave privada salva em $(SEALED_SECRETS_KEY)"
 	@echo "✅ Certificado público salvo em $(HOME)/.homelab/sealed-secrets-cert.pem"
