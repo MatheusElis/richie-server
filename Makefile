@@ -1,6 +1,6 @@
 ANSIBLE_PLAYBOOK = ansible/playbooks/site.yml
 ANSIBLE_INVENTORY = ansible/inventory/hosts.yml
-ANSIBLE_CMD       = ansible-playbook -i $(ANSIBLE_INVENTORY)
+ANSIBLE_CMD       = ansible-playbook -i $(ANSIBLE_INVENTORY) --ask-become-pass
 
 SEALED_SECRETS_KEY ?= $(HOME)/.homelab/sealed-secrets-key.yaml
 KUBESEAL_VERSION   = 0.27.0
