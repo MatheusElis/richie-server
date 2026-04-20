@@ -10,6 +10,11 @@ metadata:
 spec:
   project: default
   sources:
+    - repoURL: https://github.com/MatheusElis/richie-server
+      targetRevision: HEAD
+      path: apps/postgresql
+      directory:
+        exclude: "values.yaml"
     - repoURL: https://charts.bitnami.com/bitnami
       chart: postgresql
       targetRevision: "16.7.27"
