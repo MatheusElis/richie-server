@@ -36,7 +36,7 @@ _Sem itens no momento._
 
 ## Review (max: 3)
 
-- [KB-009](kanban/cards/KB-009.md) — Primeira Aplicação: Glance (Homepage)
+_Sem itens no momento._
 
 ---
 
@@ -50,6 +50,7 @@ _Sem itens no momento._
 - [KB-006](kanban/cards/KB-006.md) — Ingress com Traefik
 - [KB-007](kanban/cards/KB-007.md) — cert-manager + Cloudflare DNS-01
 - [KB-008](kanban/cards/KB-008.md) — Sealed Secrets
+- [KB-009](kanban/cards/KB-009.md) — Primeira Aplicação: Glance (Homepage)
 - [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
 
 ---
