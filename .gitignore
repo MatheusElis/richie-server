@@ -2,12 +2,19 @@
 *.key
 *.pem
 *-secret-plain.yaml
+secret.yaml
 .env
-bootstrap/.env
 
 # Temporários
 *.tmp
+*.bak
 .DS_Store
+Thumbs.db
 
-# Backup da Master Key do Sealed Secrets
+# Ansible
+ansible/*.retry
+ansible/**/*.retry
+
+# Sealed Secrets — chave mestra
 master-key-backup.yaml
+~/.homelab/
