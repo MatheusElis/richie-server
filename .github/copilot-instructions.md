@@ -106,3 +106,128 @@ make install
 
 - Este arquivo será complementado conforme o projeto evolui.
 - Novas definições de tecnologias, padrões de código, e convenções serão adicionadas aqui à medida que forem decididas.
+
+---
+
+## Estado Atual do Cluster (pós KB-001 a KB-010)
+
+### Versões em Produção
+
+| Componente | Versão |
+|---|---|
+| K3s | v1.32.3+k3s1 |
+| Kubernetes | v1.32.3 |
+| containerd | 2.0.4-k3s2 |
+| ArgoCD Helm chart | argo-cd-9.5.2 (app v3.3.7) |
+| Sealed Secrets | 0.27.0 |
+| Helm | v3.20.2 |
+
+### Aplicações Rodando
+
+| App | Namespace | URL | Status |
+|---|---|---|---|
+| ArgoCD | argocd | https://argocd.bisnaguete.xyz | ✅ Healthy |
+| Glance | glance | https://home.bisnaguete.xyz | ✅ Healthy |
+| pgAdmin | pgadmin | https://pgadmin.bisnaguete.xyz | ✅ Healthy |
+| PostgreSQL | postgresql | interno (sem ingress) | ✅ Healthy |
+| Traefik | traefik | interno | ✅ Healthy |
+| cert-manager | cert-manager | interno | ✅ Healthy |
+| Sealed Secrets | kube-system | interno | ✅ Healthy |
+
+### Estrutura de Diretórios do Repositório
+
+```
+richie-server/
+├── Makefile                        # Ponto de entrada: make install
+├── ansible/
+│   ├── ansible.cfg
+│   ├── inventory/
+│   │   ├── hosts.yml               # Host: cusin (localhost)
+│   │   └── group_vars/all.yml      # Variáveis globais
+│   ├── playbooks/
+│   │   └── site.yml                # Playbook principal
+│   └── roles/
+│       ├── common/                 # OS: pacotes, timezone, swap, kernel
+│       ├── k3s/                    # Instalação K3s + kubeconfig
+│       ├── sealed-secrets/         # Restaurar chave no cluster
+│       └── argocd/                 # Helm install + SealedSecret + root-app
+├── argocd/
+│   └── bootstrap/
+│       ├── values.yaml             # Helm values do ArgoCD (inclui ingress)
+│       └── root-app.yaml           # App of Apps — aponta para argocd/apps/
+├── apps/                           # Manifests Kubernetes por app
+│   ├── glance/
+│   ├── pgadmin/
+│   ├── postgresql/
+│   └── traefik/
+├── argocd/apps/                    # ArgoCD Application CRDs
+│   ├── cert-manager.yaml
+│   ├── glance.yaml
+│   ├── pgadmin.yaml
+│   ├── postgresql.yaml
+│   ├── sealed-secrets.yaml
+│   └── traefik.yaml
+├── secrets/                        # SealedSecrets (encriptados, safe para git)
+│   └── argocd-admin-secret.yaml
+└── kanban/                         # Board e cards Kanban
+    ├── TEMPLATE.md
+    └── cards/KB-XXX.md
+```
+
+### Comandos Úteis do Dia a Dia
+
+```bash
+# Instalar / recriar tudo do zero
+make install
+
+# Verificar estado do cluster
+KUBECONFIG=~/.kube/config kubectl get pods -A
+KUBECONFIG=~/.kube/config kubectl get applications -n argocd
+
+# Gerar par de chaves Sealed Secrets (apenas uma vez / ao trocar hardware)
+make gen-keys
+
+# Encriptar um novo secret
+kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > sealed-secret.yaml
+```
+
+### Credenciais e Acesso
+
+| Serviço | Usuário | Observação |
+|---|---|---|
+| ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`) |
+| pgAdmin | admin@bisnaguete.xyz | Senha em SealedSecret (`apps/pgadmin/sealed-secret.yaml`) |
+
+### Chaves e Backups Obrigatórios
+
+| Arquivo | Localização | Importância |
+|---|---|---|
+| Chave privada Sealed Secrets | `~/.homelab/sealed-secrets-key.yaml` | **CRÍTICO** — sem ela não é possível descriptografar nenhum SealedSecret. Guardar em gerenciador de senhas. |
+| Certificado público | `~/.homelab/sealed-secrets-cert.pem` | Usado para encriptar novos secrets |
+
+> ⚠️ **Se a chave privada for perdida**, rodar `make rotate-keys` e re-encriptar todos os SealedSecrets do repositório.
+
+### Padrão para Adicionar Novas Aplicações via GitOps
+
+1. Criar manifests em `apps/<nome-do-app>/` (Deployment, Service, Ingress, etc.)
+2. Criar `argocd/apps/<nome-do-app>.yaml` (ArgoCD Application CRD)
+3. Secrets sensíveis → gerar SealedSecret e salvar em `secrets/` ou `apps/<nome>/`
+4. Fazer `git push` — ArgoCD sincroniza automaticamente
+
+### DNS e Domínio
+
+- Domínio: `bisnaguete.xyz`
+- DNS gerenciado via Cloudflare
+- Certificados TLS: cert-manager com ClusterIssuer `letsencrypt-prod` (DNS-01 via Cloudflare)
+- Todos os ingresses usam Traefik como IngressClass
+
+### Variáveis Ansible Configuráveis (`ansible/inventory/group_vars/all.yml`)
+
+| Variável | Valor atual | Descrição |
+|---|---|---|
+| `k3s_version` | v1.32.3+k3s1 | Versão fixada do K3s |
+| `k3s_user` | elis | Usuário que recebe o kubeconfig |
+| `timezone` | America/Sao_Paulo | Timezone do servidor |
+| `homelab_data_dir` | /opt/homelab | Diretório base para dados persistentes |
+| `argocd_chart_version` | 7.8.26 | Versão fixada do Helm chart do ArgoCD |
+| `project_root` | ~/richie-server | Caminho local do repositório |

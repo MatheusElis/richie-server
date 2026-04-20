@@ -22,8 +22,6 @@ _Vazio_
 
 ## To Do
 
-- [KB-009](kanban/cards/KB-009.md) — Primeira Aplicação: Glance (Homepage)
-- [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 
 ---
