@@ -36,7 +36,7 @@ _Sem itens no momento._
 
 ## Review (max: 3)
 
-_Sem itens no momento._
+- [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
 
 ---
 
