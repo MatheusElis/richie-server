@@ -13,6 +13,12 @@
   failed_when: ns_result.rc != 0 and 'already exists' not in ns_result.stderr
   changed_when: ns_result.rc == 0
 
+- name: Aplicar SealedSecret da senha do admin ArgoCD
+  command: >
+    kubectl apply -f {{ project_root }}/secrets/argocd-admin-secret.yaml
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
 - name: Instalar/atualizar ArgoCD via Helm
   command: >
     helm upgrade --install argocd argo/argo-cd
