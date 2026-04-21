@@ -77,16 +77,6 @@ spec:
                 secretKeyRef:
                   name: joplin-credentials
                   key: joplin-db-password
-            - name: ADMIN_EMAIL
-              valueFrom:
-                secretKeyRef:
-                  name: joplin-credentials
-                  key: admin-email
-            - name: ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: joplin-credentials
-                  key: admin-password
           resources:
             requests:
               cpu: "100m"
