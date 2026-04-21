@@ -1,3 +1,8 @@
+providers:
+  kubernetesIngress:
+    publishedService:
+      enabled: true
+
 deployment:
   replicas: 1
 

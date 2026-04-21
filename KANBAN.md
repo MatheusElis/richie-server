@@ -22,13 +22,13 @@ _Vazio_
 
 ## To Do
 
-- [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
+_Vazio_
 
 ---
 
 ## In Progress (max: 1)
 
-- [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
+- [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 
 ---
 
@@ -51,6 +51,7 @@ _Sem itens no momento._
 - [KB-009](kanban/cards/KB-009.md) — Primeira Aplicação: Glance (Homepage)
 - [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
 - [KB-012](kanban/cards/KB-012.md) — Quebrar dependência cíclica ArgoCD ↔ Sealed Secrets
+- [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 
 ---
 
