@@ -6,8 +6,7 @@ After=network-online.target
 [Service]
 Type=notify
 ExecStart=/usr/local/bin/k3s server \
-  --disable=traefik \
-  --disable=servicelb
+  --disable=traefik
 KillMode=process
 Delegate=yes
 LimitNOFILE=infinity

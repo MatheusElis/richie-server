@@ -8,9 +8,6 @@ deployment:
 
 service:
   type: LoadBalancer
-  spec:
-    externalIPs:
-      - 192.168.31.55
 
 ingressClass:
   enabled: true

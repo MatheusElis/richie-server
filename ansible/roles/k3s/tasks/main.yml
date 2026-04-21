@@ -7,8 +7,7 @@
 - name: Baixar e instalar K3s
   shell: |
     curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="{{ k3s_version }}" sh -s - \
-      --disable=traefik \
-      --disable=servicelb
+      --disable=traefik
   args:
     creates: /usr/local/bin/k3s
   when: not k3s_binary.stat.exists
