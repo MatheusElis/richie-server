@@ -23,13 +23,12 @@ _Vazio_
 ## To Do
 
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
-- [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 
 ---
 
 ## In Progress (max: 1)
 
-_Sem itens no momento._
+- [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 
 ---
 
