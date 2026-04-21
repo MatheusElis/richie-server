@@ -34,13 +34,14 @@ _Vazio_
 
 ## In Progress (max: 1)
 
-- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
+_Sem itens no momento._
 
 ---
 
 ## Review (max: 3)
 
 - [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
+- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
