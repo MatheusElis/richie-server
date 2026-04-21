@@ -16,7 +16,6 @@
 
 ## Backlog
 
-- [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
 - [KB-015](kanban/cards/KB-015.md) — Transmission (cliente torrent)
 - [KB-016](kanban/cards/KB-016.md) — Prowlarr (gerenciador de indexadores)
 - [KB-017](kanban/cards/KB-017.md) — Radarr (gerenciador de filmes)
@@ -24,13 +23,13 @@
 - [KB-019](kanban/cards/KB-019.md) — LazyLibrarian (gerenciador de ebooks)
 - [KB-020](kanban/cards/KB-020.md) — Calibre (servidor de ebooks)
 - [KB-021](kanban/cards/KB-021.md) — Filebrowser (gerenciador de arquivos web)
-- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
 ## To Do
 
-_Vazio_
+- [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
+- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
