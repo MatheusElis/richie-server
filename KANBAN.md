@@ -16,7 +16,15 @@
 
 ## Backlog
 
-_Vazio_
+- [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
+- [KB-015](kanban/cards/KB-015.md) — Transmission (cliente torrent)
+- [KB-016](kanban/cards/KB-016.md) — Prowlarr (gerenciador de indexadores)
+- [KB-017](kanban/cards/KB-017.md) — Radarr (gerenciador de filmes)
+- [KB-018](kanban/cards/KB-018.md) — Sonarr (gerenciador de séries)
+- [KB-019](kanban/cards/KB-019.md) — LazyLibrarian (gerenciador de ebooks)
+- [KB-020](kanban/cards/KB-020.md) — Calibre (servidor de ebooks)
+- [KB-021](kanban/cards/KB-021.md) — Filebrowser (gerenciador de arquivos web)
+- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
@@ -28,7 +36,7 @@ _Vazio_
 
 ## In Progress (max: 1)
 
-- [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
+_Sem itens no momento._
 
 ---
 
@@ -52,6 +60,7 @@ _Sem itens no momento._
 - [KB-010](kanban/cards/KB-010.md) — PostgreSQL + pgAdmin
 - [KB-012](kanban/cards/KB-012.md) — Quebrar dependência cíclica ArgoCD ↔ Sealed Secrets
 - [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
+- [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 
 ---
 
