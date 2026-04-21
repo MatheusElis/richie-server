@@ -1,4 +1,36 @@
 ---
+# --- Instalar Sealed Secrets controller via Helm ---
+- name: Adicionar repositório Helm do Sealed Secrets
+  command: helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
+  changed_when: false
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Atualizar repositórios Helm
+  command: helm repo update
+  changed_when: false
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Instalar/atualizar Sealed Secrets controller via Helm
+  command: >
+    helm upgrade --install sealed-secrets-controller sealed-secrets/sealed-secrets
+    --namespace kube-system
+    --version "{{ sealed_secrets_chart_version }}"
+    --set fullnameOverride=sealed-secrets-controller
+    --wait
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Aguardar controller do Sealed Secrets estar pronto
+  command: >
+    kubectl rollout status deployment/sealed-secrets-controller
+    -n kube-system --timeout=120s
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: false
+
+# --- Gerenciar chave privada ---
 - name: Verificar se a chave do Sealed Secrets existe localmente
   stat:
     path: "{{ sealed_secrets_key_path }}"
@@ -15,32 +47,35 @@
 # --- Cenário: chave existe (rebuild de hardware) ---
 - name: Restaurar chave do Sealed Secrets no cluster
   command: >
-    k3s kubectl apply -f {{ sealed_secrets_key_path }}
+    kubectl apply -f {{ sealed_secrets_key_path }}
   when: sealed_secrets_key.stat.exists
-  become: true
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Reiniciar controller para carregar chave restaurada
+  command: >
+    kubectl rollout restart deployment/sealed-secrets-controller -n kube-system
+  when: sealed_secrets_key.stat.exists
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+
+- name: Aguardar controller pronto após restart
+  command: >
+    kubectl rollout status deployment/sealed-secrets-controller
+    -n kube-system --timeout=120s
+  when: sealed_secrets_key.stat.exists
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"
+  changed_when: false
 
 # --- Cenário: chave não existe (primeiro setup) ---
-- name: Aguardar o controller do Sealed Secrets subir (primeiro setup)
-  command: >
-    k3s kubectl rollout status deployment/sealed-secrets-controller
-    -n kube-system --timeout=120s
-  when: not sealed_secrets_key.stat.exists
-  retries: 5
-  delay: 15
-  register: ss_ready
-  until: ss_ready.rc == 0
-  changed_when: false
-  ignore_errors: true
-
 - name: Exportar chave gerada pelo cluster para ~/.homelab
   shell: |
-    k3s kubectl get secret \
+    kubectl get secret \
       -n kube-system \
       -l sealedsecrets.bitnami.com/sealed-secrets-key=active \
       -o yaml > {{ sealed_secrets_key_path }}
-  when:
-    - not sealed_secrets_key.stat.exists
-    - ss_ready is defined
-    - ss_ready.rc is defined
-    - ss_ready.rc == 0
+  when: not sealed_secrets_key.stat.exists
   become: false
+  environment:
+    KUBECONFIG: "/home/{{ k3s_user }}/.kube/config"

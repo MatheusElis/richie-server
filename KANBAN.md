@@ -23,6 +23,7 @@ _Vazio_
 ## To Do
 
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
+- [KB-012](kanban/cards/KB-012.md) — Quebrar dependência cíclica ArgoCD ↔ Sealed Secrets
 
 ---
 
