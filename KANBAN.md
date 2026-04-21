@@ -28,19 +28,19 @@
 
 ## To Do
 
-- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
+_Vazio_
 
 ---
 
 ## In Progress (max: 1)
 
-- [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
+- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
 ## Review (max: 3)
 
-_Sem itens no momento._
+- [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
 
 ---
 
