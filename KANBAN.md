@@ -35,12 +35,13 @@
 
 ## In Progress (max: 1)
 
-- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
+(vazio)
 
 ---
 
 ## Review (max: 3)
 
+- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
 - [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
 
 ---
