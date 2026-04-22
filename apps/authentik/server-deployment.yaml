@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-server
+  namespace: authentik
+  labels:
+    app: authentik-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: authentik-server
+  template:
+    metadata:
+      labels:
+        app: authentik-server
+    spec:
+      initContainers:
+        - name: init-db
+          image: postgres:17
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgresql.postgresql.svc -U postgres; do
+                echo "Aguardando PostgreSQL..."
+                sleep 2
+              done
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -tc \
+                "SELECT 1 FROM pg_database WHERE datname = 'authentik'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "CREATE DATABASE authentik;"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -tc \
+                "SELECT 1 FROM pg_roles WHERE rolname = 'authentik'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "CREATE USER authentik WITH PASSWORD '$AUTHENTIK_PG_PASSWORD';"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "GRANT ALL PRIVILEGES ON DATABASE authentik TO authentik;"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -d authentik -c \
+                "GRANT ALL ON SCHEMA public TO authentik;"
+          env:
+            - name: POSTGRES_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-credentials
+                  key: postgresql-superuser-password
+            - name: AUTHENTIK_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-credentials
+                  key: postgresql-password
+      containers:
+        - name: server
+          image: ghcr.io/goauthentik/server:2026.2.2
+          args:
+            - server
+          ports:
+            - containerPort: 9000
+              name: http
+            - containerPort: 9443
+              name: https
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-credentials
+                  key: secret-key
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: postgresql.postgresql.svc
+            - name: AUTHENTIK_POSTGRESQL__PORT
+              value: "5432"
+            - name: AUTHENTIK_POSTGRESQL__USER
+              value: authentik
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-credentials
+                  key: postgresql-password
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: authentik
+            - name: AUTHENTIK_REDIS__HOST
+              value: redis.authentik.svc
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "400Mi"
+          livenessProbe:
+            httpGet:
+              path: /-/health/live/
+              port: 9000
+            initialDelaySeconds: 50
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /-/health/ready/
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 5
