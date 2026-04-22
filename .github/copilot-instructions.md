@@ -110,7 +110,7 @@ make install
 
 ---
 
-## Estado Atual do Cluster (pós KB-001 a KB-013)
+## Estado Atual do Cluster (pós KB-001 a KB-013, KB-024)
 
 ### Versões em Produção
 
@@ -128,6 +128,7 @@ make install
 | App | Namespace | URL | Status |
 |---|---|---|---|
 | ArgoCD | argocd | https://argocd.bisnaguete.xyz | ✅ Healthy |
+| Authentik | authentik | https://auth.bisnaguete.xyz | ✅ Healthy |
 | Glance | glance | https://home.bisnaguete.xyz | ✅ Healthy |
 | pgAdmin | pgadmin | https://pgadmin.bisnaguete.xyz | ✅ Healthy |
 | PostgreSQL | postgresql | interno (sem ingress) | ✅ Healthy |
@@ -155,6 +156,7 @@ richie-server/
 ├── argocd/
 │   ├── apps/                       # ArgoCD Application CRDs
 │   │   ├── cert-manager.yaml
+│   │   ├── authentik.yaml
 │   │   ├── glance.yaml
 │   │   ├── pgadmin.yaml
 │   │   ├── postgresql.yaml
@@ -163,6 +165,7 @@ richie-server/
 │       ├── root-app.yaml           # App of Apps — aponta para argocd/apps/
 │       └── values.yaml             # Helm values do ArgoCD (inclui ingress)
 ├── apps/                           # Manifests Kubernetes por app
+│   ├── authentik/
 │   ├── cert-manager/
 │   ├── glance/
 │   ├── pgadmin/
@@ -207,7 +210,7 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 |---|---|---|
 | ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`). Futuro: SSO via Authentik (KB-025) |
 | pgAdmin | admin@bisnaguete.xyz | Senha em SealedSecret (`apps/pgadmin/sealed-secret.yaml`). Futuro: proxy auth via Authentik (KB-026) |
-| Authentik | admin (a definir) | Senha definida no primeiro acesso via `/if/flow/initial-setup/` (KB-024) |
+| Authentik | admin | Senha definida via `/if/flow/initial-setup/`. Secret key em SealedSecret (`apps/authentik/sealed-secret.yaml`) |
 
 ### Chaves e Backups Obrigatórios
 
@@ -268,7 +271,6 @@ traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetes
 
 | App | Imagem | URL prevista | Auth | Card |
 |---|---|---|---|---|
-| Authentik | `ghcr.io/goauthentik/server:2026.2.2` | `auth.bisnaguete.xyz` | — (é o IdP) | KB-024 |
 | Memos | `neosmemo/memos:0.27.1` | `memos.bisnaguete.xyz` | OIDC nativo | KB-023 |
 | Transmission | `linuxserver/transmission:4.1.1` | `transmission.bisnaguete.xyz` | Forward Auth | KB-015 |
 | Prowlarr | `linuxserver/prowlarr:1.34.1` | `prowlarr.bisnaguete.xyz` | Forward Auth + External | KB-016 |
