@@ -78,6 +78,7 @@ Construir um cluster Kubernetes **reproduzível** em cima deste hardware. O crit
 | **Configuração do OS / Bootstrap K3s** | Ansible | Idempotente, ideal para configuração de bare metal, escalável para multi-node no futuro |
 | **Kubernetes** | K3s | Leve, ideal para hardware modesto (i5-3570 / 7.6 GB RAM), single-node |
 | **GitOps** | ArgoCD | Padrão App of Apps — adicionar/remover apps via Git, sem intervenção manual |
+| **Identity Provider** | Authentik | SSO centralizado, Forward Auth via Traefik, OIDC nativo para apps compatíveis |
 
 ### Padrão GitOps — App of Apps
 
@@ -109,7 +110,7 @@ make install
 
 ---
 
-## Estado Atual do Cluster (pós KB-001 a KB-010)
+## Estado Atual do Cluster (pós KB-001 a KB-013)
 
 ### Versões em Produção
 
@@ -147,28 +148,37 @@ richie-server/
 │   ├── playbooks/
 │   │   └── site.yml                # Playbook principal
 │   └── roles/
-│       ├── common/                 # OS: pacotes, timezone, swap, kernel
+│       ├── common/                 # OS: pacotes, timezone, swap, kernel, diretórios mídia
 │       ├── k3s/                    # Instalação K3s + kubeconfig
 │       ├── sealed-secrets/         # Restaurar chave no cluster
 │       └── argocd/                 # Helm install + SealedSecret + root-app
 ├── argocd/
+│   ├── apps/                       # ArgoCD Application CRDs
+│   │   ├── cert-manager.yaml
+│   │   ├── glance.yaml
+│   │   ├── pgadmin.yaml
+│   │   ├── postgresql.yaml
+│   │   └── traefik.yaml
 │   └── bootstrap/
-│       ├── values.yaml             # Helm values do ArgoCD (inclui ingress)
-│       └── root-app.yaml           # App of Apps — aponta para argocd/apps/
+│       ├── root-app.yaml           # App of Apps — aponta para argocd/apps/
+│       └── values.yaml             # Helm values do ArgoCD (inclui ingress)
 ├── apps/                           # Manifests Kubernetes por app
+│   ├── cert-manager/
 │   ├── glance/
 │   ├── pgadmin/
 │   ├── postgresql/
+│   ├── sealed-secrets/
 │   └── traefik/
-├── argocd/apps/                    # ArgoCD Application CRDs
-│   ├── cert-manager.yaml
-│   ├── glance.yaml
-│   ├── pgadmin.yaml
-│   ├── postgresql.yaml
-│   ├── sealed-secrets.yaml
-│   └── traefik.yaml
+├── scripts/
+│   └── seal.sh                     # Helper para encriptar secrets
 ├── secrets/                        # SealedSecrets (encriptados, safe para git)
 │   └── argocd-admin-secret.yaml
+├── docs/                           # Documentação do projeto
+│   ├── acesso.md
+│   ├── arquitetura.md
+│   ├── como-adicionar-app.md
+│   ├── hardware.md
+│   └── sealed-secrets.md
 └── kanban/                         # Board e cards Kanban
     ├── TEMPLATE.md
     └── cards/KB-XXX.md
@@ -195,8 +205,9 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 
 | Serviço | Usuário | Observação |
 |---|---|---|
-| ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`) |
-| pgAdmin | admin@bisnaguete.xyz | Senha em SealedSecret (`apps/pgadmin/sealed-secret.yaml`) |
+| ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`). Futuro: SSO via Authentik (KB-025) |
+| pgAdmin | admin@bisnaguete.xyz | Senha em SealedSecret (`apps/pgadmin/sealed-secret.yaml`). Futuro: proxy auth via Authentik (KB-026) |
+| Authentik | admin (a definir) | Senha definida no primeiro acesso via `/if/flow/initial-setup/` (KB-024) |
 
 ### Chaves e Backups Obrigatórios
 
@@ -212,7 +223,28 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 1. Criar manifests em `apps/<nome-do-app>/` (Deployment, Service, Ingress, etc.)
 2. Criar `argocd/apps/<nome-do-app>.yaml` (ArgoCD Application CRD)
 3. Secrets sensíveis → gerar SealedSecret e salvar em `secrets/` ou `apps/<nome>/`
-4. Fazer `git push` — ArgoCD sincroniza automaticamente
+4. Ingress deve incluir annotation de Forward Auth do Authentik (exceto apps com OIDC nativo)
+5. Fazer `git push` — ArgoCD sincroniza automaticamente
+
+### Padrão de Autenticação
+
+O Authentik é o Identity Provider centralizado. Toda app nova DEVE ser protegida por ele.
+
+| Método | Quando usar | Exemplo |
+|---|---|---|
+| **OIDC nativo** | App suporta SSO via OpenID Connect | ArgoCD, Memos |
+| **Forward Auth + External** | Apps *arr (suportam header `Remote-User`) | Prowlarr, Radarr, Sonarr |
+| **Forward Auth + Proxy auth** | App suporta auto-login via header | pgAdmin (`REMOTE_USER`), Filebrowser (`X-authentik-username`) |
+| **Forward Auth puro** | App sem auth própria | Glance, Transmission, LazyLibrarian, Calibre |
+
+Princípio: **zero dupla autenticação** — o usuário autentica uma vez no Authentik e acessa a app diretamente.
+
+#### Middleware Traefik para Forward Auth
+
+Apps protegidas por Forward Auth usam esta annotation no ingress:
+```yaml
+traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
+```
 
 ### DNS e Domínio
 
@@ -231,3 +263,33 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 | `homelab_data_dir` | /opt/homelab | Diretório base para dados persistentes |
 | `argocd_chart_version` | 7.8.26 | Versão fixada do Helm chart do ArgoCD |
 | `project_root` | ~/richie-server | Caminho local do repositório |
+
+### Aplicações Planejadas (Backlog/To Do)
+
+| App | Imagem | URL prevista | Auth | Card |
+|---|---|---|---|---|
+| Authentik | `ghcr.io/goauthentik/server:2026.2.2` | `auth.bisnaguete.xyz` | — (é o IdP) | KB-024 |
+| Memos | `neosmemo/memos:0.27.1` | `memos.bisnaguete.xyz` | OIDC nativo | KB-023 |
+| Transmission | `linuxserver/transmission:4.1.1` | `transmission.bisnaguete.xyz` | Forward Auth | KB-015 |
+| Prowlarr | `linuxserver/prowlarr:1.34.1` | `prowlarr.bisnaguete.xyz` | Forward Auth + External | KB-016 |
+| Radarr | `linuxserver/radarr:6.1.1` | `radarr.bisnaguete.xyz` | Forward Auth + External | KB-017 |
+| Sonarr | `linuxserver/sonarr:4.0.17` | `sonarr.bisnaguete.xyz` | Forward Auth + External | KB-018 |
+| LazyLibrarian | `linuxserver/lazylibrarian:e7c7ce2d-ls262` | `lazylibrarian.bisnaguete.xyz` | Forward Auth | KB-019 |
+| Calibre | `linuxserver/calibre:9.7.0` | `calibre.bisnaguete.xyz` + `calibre-opds.bisnaguete.xyz` | Forward Auth | KB-020 |
+| Filebrowser | `filebrowser/filebrowser:v2.63.2` | `files.bisnaguete.xyz` | Forward Auth + Proxy auth | KB-021 |
+
+### Volume Compartilhado de Mídia (KB-014 — em Review)
+
+```
+/opt/homelab/data/media/
+├── downloads/        # Transmission deposita aqui
+│   ├── complete/
+│   └── incomplete/
+├── movies/           # Radarr organiza aqui
+├── tv/               # Sonarr organiza aqui
+└── books/            # LazyLibrarian + Calibre
+```
+
+- Diretórios criados via Ansible (role `common`)
+- Cada app monta subdiretórios via `hostPath` (single-node)
+- PUID=1000 / PGID=1000 (usuário `elis`) para todas as apps de mídia
