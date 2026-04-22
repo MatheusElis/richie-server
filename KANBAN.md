@@ -28,7 +28,6 @@
 ## To Do
 
 - [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
-- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
 - [KB-025](kanban/cards/KB-025.md) — Integrar ArgoCD com Authentik (OIDC)
 - [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
 
@@ -36,14 +35,13 @@
 
 ## In Progress (max: 1)
 
-_Sem itens no momento._
+- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
 
 ---
 
 ## Review (max: 3)
 
 - [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
-- [KB-027](kanban/cards/KB-027.md) — Remover Joplin Server do cluster
 
 ---
 
@@ -62,6 +60,7 @@ _Sem itens no momento._
 - [KB-012](kanban/cards/KB-012.md) — Quebrar dependência cíclica ArgoCD ↔ Sealed Secrets
 - [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
+- [KB-027](kanban/cards/KB-027.md) — Remover Joplin Server do cluster
 
 ---
 
