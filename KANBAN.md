@@ -41,7 +41,6 @@ _Sem itens no momento._
 ## Review (max: 3)
 
 - [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
-- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
@@ -60,6 +59,7 @@ _Sem itens no momento._
 - [KB-012](kanban/cards/KB-012.md) — Quebrar dependência cíclica ArgoCD ↔ Sealed Secrets
 - [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
+- [KB-022](kanban/cards/KB-022.md) — Joplin Server (sincronização de notas)
 
 ---
 
