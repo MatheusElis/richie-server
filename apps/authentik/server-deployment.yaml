@@ -111,10 +111,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "256Mi"
+              memory: "400Mi"
             limits:
               cpu: "500m"
-              memory: "400Mi"
+              memory: "600Mi"
           startupProbe:
             httpGet:
               path: /-/health/live/
