@@ -32,7 +32,7 @@ spec:
             - name: AUTHENTICATION_SOURCES
               value: '["webserver"]'
             - name: WEBSERVER_REMOTE_USER
-              value: X-authentik-email
+              value: HTTP_X_AUTHENTIK_EMAIL
           volumeMounts:
             - name: servers-config
               mountPath: /pgadmin4/servers.json
