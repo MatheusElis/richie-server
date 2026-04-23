@@ -34,7 +34,7 @@
 
 ## In Progress (max: 1)
 
-- [KB-025](kanban/cards/KB-025.md) — Integrar ArgoCD com Authentik (OIDC)
+(vazio)
 
 ---
 
@@ -61,6 +61,7 @@
 - [KB-013](kanban/cards/KB-013.md) — Corrigir versão do chart PostgreSQL Bitnami
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 - [KB-027](kanban/cards/KB-027.md) — Remover Joplin Server do cluster
+- [KB-025](kanban/cards/KB-025.md) — Integrar ArgoCD com Authentik (OIDC)
 
 ---
 
