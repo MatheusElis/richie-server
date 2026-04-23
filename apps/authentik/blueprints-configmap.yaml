@@ -30,6 +30,12 @@ data:
           slug: forward-auth-domain
           provider: !KeyOf proxy-provider-domain
           policy_engine_mode: any
+      - model: authentik_outposts.outpost
+        identifiers:
+          managed: goauthentik.io/outposts/embedded
+        attrs:
+          providers:
+            - !KeyOf proxy-provider-domain
   argocd-oidc.yaml: |
     version: 1
     metadata:
