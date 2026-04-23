@@ -31,6 +31,7 @@ configs:
   rbac:
     policy.csv: |
       g, argocd-admins, role:admin
+    policy.default: role:admin
 
   # Repositório Git como fonte
   repositories:
