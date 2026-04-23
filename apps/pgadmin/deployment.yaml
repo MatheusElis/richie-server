@@ -29,13 +29,13 @@ spec:
                 secretKeyRef:
                   name: pgadmin-credentials
                   key: password
-            - name: AUTHENTICATION_SOURCES
-              value: '["webserver"]'
-            - name: WEBSERVER_REMOTE_USER
-              value: REMOTE_USER
-            - name: WEBSERVER_AUTO_CREATE_USER
+            - name: PGADMIN_CONFIG_AUTHENTICATION_SOURCES
+              value: "['webserver']"
+            - name: PGADMIN_CONFIG_WEBSERVER_REMOTE_USER
+              value: "'REMOTE_USER'"
+            - name: PGADMIN_CONFIG_WEBSERVER_AUTO_CREATE_USER
               value: "True"
-            - name: ENHANCED_COOKIE_PROTECTION
+            - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
               value: "False"
           volumeMounts:
             - name: servers-config
