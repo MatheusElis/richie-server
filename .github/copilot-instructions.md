@@ -208,9 +208,9 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 
 | Serviço | Usuário | Observação |
 |---|---|---|
-| ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`). Futuro: SSO via Authentik (KB-025) |
-| pgAdmin | admin@bisnaguete.xyz | Senha em SealedSecret (`apps/pgadmin/sealed-secret.yaml`). Futuro: proxy auth via Authentik (KB-026) |
-| Authentik | admin | Senha definida via `/if/flow/initial-setup/`. Secret key em SealedSecret (`apps/authentik/sealed-secret.yaml`) |
+| ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`). SSO via Authentik OIDC (KB-025) |
+| pgAdmin | via Authentik | Proxy auth via `X-Authentik-Email`. Sem login próprio — `AUTHENTICATION_SOURCES: ['webserver']` (KB-026) |
+| Authentik | akadmin | Senha definida via `/if/flow/initial-setup/`. Email: `matheus.elis.silva@gmail.com`. Secret key em SealedSecret (`apps/authentik/sealed-secret.yaml`) |
 
 ### Chaves e Backups Obrigatórios
 
@@ -237,7 +237,7 @@ O Authentik é o Identity Provider centralizado. Toda app nova DEVE ser protegid
 |---|---|---|
 | **OIDC nativo** | App suporta SSO via OpenID Connect | ArgoCD, Memos |
 | **Forward Auth + External** | Apps *arr (suportam header `Remote-User`) | Prowlarr, Radarr, Sonarr |
-| **Forward Auth + Proxy auth** | App suporta auto-login via header | pgAdmin (`REMOTE_USER`), Filebrowser (`X-authentik-username`) |
+| **Forward Auth + Proxy auth** | App suporta auto-login via header | pgAdmin (`X-Authentik-Email`), Filebrowser (`X-authentik-username`) |
 | **Forward Auth puro** | App sem auth própria | Glance, Transmission, LazyLibrarian, Calibre |
 
 Princípio: **zero dupla autenticação** — o usuário autentica uma vez no Authentik e acessa a app diretamente.
@@ -254,9 +254,24 @@ traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetes
 
 #### Automação do Authentik (Blueprints)
 
-O Authentik suporta **Blueprints** — configuração declarativa em YAML que pode ser montada como ConfigMap no worker.
-Providers, Applications e Flows podem ser definidos como código, tornando o Authentik configurável 100% via GitOps.
-Por ora a configuração é feita via UI; Blueprints podem ser adotados no futuro para reproduzibilidade total.
+O Authentik é configurado via **Blueprints** — YAML declarativo montado como ConfigMap no worker.
+Arquivo: `apps/authentik/blueprints-configmap.yaml` — contém:
+
+| Blueprint | Conteúdo |
+|---|---|
+| `forward-auth-domain.yaml` | ProxyProvider (forward_domain) + Application + Outpost binding ao embedded outpost |
+| `argocd-oidc.yaml` | OAuth2Provider + Application para ArgoCD OIDC |
+
+O worker monta os blueprints em `/blueprints/custom` (readOnly) e os aplica automaticamente.
+Para adicionar nova configuração ao Authentik, basta editar o ConfigMap — 100% GitOps.
+
+#### Notas técnicas sobre Forward Auth + pgAdmin
+
+- **Middleware porta:** Usar porta 80 do Service (não 9000 do container): `http://authentik-server.authentik.svc/outpost.goauthentik.io/auth/traefik`
+- **pgAdmin envvars:** Prefixo `PGADMIN_CONFIG_` obrigatório. Strings precisam de aspas Python: `"'valor'"`
+- **pgAdmin header:** `X-Authentik-Email` (contém email). `Remote-User` contém apenas o username
+- **pgAdmin shared servers:** `"Shared": true` no `servers.json` para visibilidade em todos os usuários
+- **Kubernetes cookie protection:** `ENHANCED_COOKIE_PROTECTION: False` necessário em pods com IPs dinâmicos
 
 ### DNS e Domínio
 

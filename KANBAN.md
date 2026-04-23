@@ -33,13 +33,10 @@
 
 ## In Progress (max: 1)
 
-- [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
-
 ---
 
 ## Review (max: 3)
 
-- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
 - [KB-014](kanban/cards/KB-014.md) — Volume compartilhado de mídia
 
 ---
@@ -61,6 +58,8 @@
 - [KB-011](kanban/cards/KB-011.md) — Primeiro Setup
 - [KB-027](kanban/cards/KB-027.md) — Remover Joplin Server do cluster
 - [KB-025](kanban/cards/KB-025.md) — Integrar ArgoCD com Authentik (OIDC)
+- [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
+- [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
 
 ---
 
