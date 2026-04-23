@@ -16,12 +16,31 @@ configs:
   params:
     server.insecure: true
 
+  cm:
+    url: https://argocd.bisnaguete.xyz
+    oidc.config: |
+      name: Authentik
+      issuer: https://auth.bisnaguete.xyz/application/o/argocd/
+      clientID: argocd
+      clientSecret: $oidc.authentik.clientSecret
+      requestedScopes:
+        - openid
+        - profile
+        - email
+
+  rbac:
+    policy.csv: |
+      g, argocd-admins, role:admin
+
   # Repositório Git como fonte
   repositories:
     richie-server:
       url: https://github.com/MatheusElis/richie-server
       name: richie-server
       type: git
+
+dex:
+  enabled: false
 
 crds:
   install: true
