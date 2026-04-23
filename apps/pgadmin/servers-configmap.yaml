@@ -15,7 +15,8 @@ data:
           "MaintenanceDB": "postgres",
           "Username": "postgres",
           "SSLMode": "prefer",
-          "PassFile": "/pgpass"
+          "PassFile": "/pgpass",
+          "Shared": true
         }
       }
     }
