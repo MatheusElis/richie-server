@@ -28,13 +28,12 @@
 ## To Do
 
 - [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
-- [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
 
 ---
 
 ## In Progress (max: 1)
 
-(vazio)
+- [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
 
 ---
 

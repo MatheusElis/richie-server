@@ -244,10 +244,19 @@ Princípio: **zero dupla autenticação** — o usuário autentica uma vez no Au
 
 #### Middleware Traefik para Forward Auth
 
+Abordagem **domain-level**: um único Provider Proxy no Authentik cobre todas as apps em `*.bisnaguete.xyz`.
+Para proteger uma nova app, basta adicionar a annotation no ingress — sem criar provider/application no Authentik.
+
 Apps protegidas por Forward Auth usam esta annotation no ingress:
 ```yaml
 traefik.ingress.kubernetes.io/router.middlewares: authentik-authentik@kubernetescrd
 ```
+
+#### Automação do Authentik (Blueprints)
+
+O Authentik suporta **Blueprints** — configuração declarativa em YAML que pode ser montada como ConfigMap no worker.
+Providers, Applications e Flows podem ser definidos como código, tornando o Authentik configurável 100% via GitOps.
+Por ora a configuração é feita via UI; Blueprints podem ser adotados no futuro para reproduzibilidade total.
 
 ### DNS e Domínio
 
