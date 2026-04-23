@@ -29,6 +29,10 @@ spec:
                 secretKeyRef:
                   name: pgadmin-credentials
                   key: password
+            - name: AUTHENTICATION_SOURCES
+              value: '["webserver"]'
+            - name: WEBSERVER_REMOTE_USER
+              value: X-authentik-email
           volumeMounts:
             - name: servers-config
               mountPath: /pgadmin4/servers.json

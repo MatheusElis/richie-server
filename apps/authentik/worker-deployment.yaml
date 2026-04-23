@@ -43,6 +43,10 @@ spec:
               value: authentik
             - name: AUTHENTIK_REDIS__HOST
               value: redis.authentik.svc
+          volumeMounts:
+            - name: custom-blueprints
+              mountPath: /blueprints/custom
+              readOnly: true
           resources:
             requests:
               cpu: "50m"
@@ -50,3 +54,7 @@ spec:
             limits:
               cpu: "300m"
               memory: "800Mi"
+      volumes:
+        - name: custom-blueprints
+          configMap:
+            name: authentik-blueprints
