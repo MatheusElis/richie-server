@@ -32,7 +32,7 @@ spec:
             - name: PGADMIN_CONFIG_AUTHENTICATION_SOURCES
               value: "['webserver']"
             - name: PGADMIN_CONFIG_WEBSERVER_REMOTE_USER
-              value: "'REMOTE_USER'"
+              value: "'X-Authentik-Email'"
             - name: PGADMIN_CONFIG_WEBSERVER_AUTO_CREATE_USER
               value: "True"
             - name: PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION
