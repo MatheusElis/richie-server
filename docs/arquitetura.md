@@ -38,7 +38,7 @@ A ordem de deploy das apps é controlada por sync waves:
 | 0 | sealed-secrets |
 | 1 | traefik, cert-manager |
 | 2 | argocd, postgresql |
-| 3 | glance, demais apps |
+| 3 | glance, memos, pgadmin, demais apps |
 
 ## Dados Persistentes
 

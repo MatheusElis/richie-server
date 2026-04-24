@@ -110,7 +110,7 @@ make install
 
 ---
 
-## Estado Atual do Cluster (pós KB-001 a KB-013, KB-024)
+## Estado Atual do Cluster (pós KB-001 a KB-013, KB-023 a KB-027)
 
 ### Versões em Produção
 
@@ -130,6 +130,7 @@ make install
 | ArgoCD | argocd | https://argocd.bisnaguete.xyz | ✅ Healthy |
 | Authentik | authentik | https://auth.bisnaguete.xyz | ✅ Healthy |
 | Glance | glance | https://home.bisnaguete.xyz | ✅ Healthy |
+| Memos | memos | https://memos.bisnaguete.xyz | ✅ Healthy |
 | pgAdmin | pgadmin | https://pgadmin.bisnaguete.xyz | ✅ Healthy |
 | PostgreSQL | postgresql | interno (sem ingress) | ✅ Healthy |
 | Traefik | traefik | interno | ✅ Healthy |
@@ -158,6 +159,7 @@ richie-server/
 │   │   ├── cert-manager.yaml
 │   │   ├── authentik.yaml
 │   │   ├── glance.yaml
+│   │   ├── memos.yaml
 │   │   ├── pgadmin.yaml
 │   │   ├── postgresql.yaml
 │   │   └── traefik.yaml
@@ -168,6 +170,7 @@ richie-server/
 │   ├── authentik/
 │   ├── cert-manager/
 │   ├── glance/
+│   ├── memos/
 │   ├── pgadmin/
 │   ├── postgresql/
 │   ├── sealed-secrets/
@@ -211,6 +214,7 @@ kubeseal --cert ~/.homelab/sealed-secrets-cert.pem -o yaml < secret.yaml > seale
 | ArgoCD | admin | Senha em SealedSecret (`secrets/argocd-admin-secret.yaml`). SSO via Authentik OIDC (KB-025) |
 | pgAdmin | via Authentik | Proxy auth via `X-Authentik-Email`. Sem login próprio — `AUTHENTICATION_SOURCES: ['webserver']` (KB-026) |
 | Authentik | akadmin | Senha definida via `/if/flow/initial-setup/`. Email: `matheus.elis.silva@gmail.com`. Secret key em SealedSecret (`apps/authentik/sealed-secret.yaml`) |
+| Memos | via Authentik | OIDC nativo. Identifier: `preferred_username`. Credenciais PostgreSQL em SealedSecret (`apps/memos/sealed-secret.yaml`) |
 
 ### Chaves e Backups Obrigatórios
 
@@ -235,7 +239,7 @@ O Authentik é o Identity Provider centralizado. Toda app nova DEVE ser protegid
 
 | Método | Quando usar | Exemplo |
 |---|---|---|
-| **OIDC nativo** | App suporta SSO via OpenID Connect | ArgoCD, Memos |
+| **OIDC nativo** | App suporta SSO via OpenID Connect | ArgoCD (`argocd-oidc.yaml`), Memos (`memos-oidc.yaml`) |
 | **Forward Auth + External** | Apps *arr (suportam header `Remote-User`) | Prowlarr, Radarr, Sonarr |
 | **Forward Auth + Proxy auth** | App suporta auto-login via header | pgAdmin (`X-Authentik-Email`), Filebrowser (`X-authentik-username`) |
 | **Forward Auth puro** | App sem auth própria | Glance, Transmission, LazyLibrarian, Calibre |
@@ -261,6 +265,7 @@ Arquivo: `apps/authentik/blueprints-configmap.yaml` — contém:
 |---|---|
 | `forward-auth-domain.yaml` | ProxyProvider (forward_domain) + Application + Outpost binding ao embedded outpost |
 | `argocd-oidc.yaml` | OAuth2Provider + Application para ArgoCD OIDC |
+| `memos-oidc.yaml` | OAuth2Provider + Application para Memos OIDC |
 
 O worker monta os blueprints em `/blueprints/custom` (readOnly) e os aplica automaticamente.
 Para adicionar nova configuração ao Authentik, basta editar o ConfigMap — 100% GitOps.
@@ -295,7 +300,6 @@ Para adicionar nova configuração ao Authentik, basta editar o ConfigMap — 10
 
 | App | Imagem | URL prevista | Auth | Card |
 |---|---|---|---|---|
-| Memos | `neosmemo/memos:0.27.1` | `memos.bisnaguete.xyz` | OIDC nativo | KB-023 |
 | Transmission | `linuxserver/transmission:4.1.1` | `transmission.bisnaguete.xyz` | Forward Auth | KB-015 |
 | Prowlarr | `linuxserver/prowlarr:1.34.1` | `prowlarr.bisnaguete.xyz` | Forward Auth + External | KB-016 |
 | Radarr | `linuxserver/radarr:6.1.1` | `radarr.bisnaguete.xyz` | Forward Auth + External | KB-017 |
