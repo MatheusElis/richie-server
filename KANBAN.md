@@ -27,11 +27,11 @@
 
 ## To Do
 
-- [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
-
 ---
 
 ## In Progress (max: 1)
+
+- [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
 
 ---
 

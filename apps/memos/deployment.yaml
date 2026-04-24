@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memos
+  namespace: memos
+  labels:
+    app: memos
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: memos
+  template:
+    metadata:
+      labels:
+        app: memos
+    spec:
+      initContainers:
+        - name: init-db
+          image: postgres:17
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h postgresql.postgresql.svc -U postgres; do
+                echo "Aguardando PostgreSQL..."
+                sleep 2
+              done
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -tc \
+                "SELECT 1 FROM pg_database WHERE datname = 'memos'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "CREATE DATABASE memos;"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -tc \
+                "SELECT 1 FROM pg_roles WHERE rolname = 'memos'" | grep -q 1 || \
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "CREATE USER memos WITH PASSWORD '$MEMOS_PG_PASSWORD';"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -c \
+                "GRANT ALL PRIVILEGES ON DATABASE memos TO memos;"
+              PGPASSWORD="$POSTGRES_SUPERUSER_PASSWORD" psql -h postgresql.postgresql.svc -U postgres -d memos -c \
+                "GRANT ALL ON SCHEMA public TO memos;"
+          env:
+            - name: POSTGRES_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: memos-credentials
+                  key: postgresql-superuser-password
+            - name: MEMOS_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: memos-credentials
+                  key: postgresql-password
+      containers:
+        - name: memos
+          image: neosmemo/memos:0.27.1
+          ports:
+            - containerPort: 5230
+          env:
+            - name: MEMOS_DRIVER
+              value: postgres
+            - name: MEMOS_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: memos-credentials
+                  key: dsn
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5230
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5230
+            initialDelaySeconds: 5
+            periodSeconds: 5
