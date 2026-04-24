@@ -57,6 +57,8 @@ spec:
           ports:
             - containerPort: 5230
           env:
+            - name: MEMOS_PORT
+              value: "5230"
             - name: MEMOS_DRIVER
               value: postgres
             - name: MEMOS_DSN
