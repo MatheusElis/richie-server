@@ -31,8 +31,6 @@
 
 ## In Progress (max: 1)
 
-- [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
-
 ---
 
 ## Review (max: 3)
@@ -60,6 +58,7 @@
 - [KB-025](kanban/cards/KB-025.md) — Integrar ArgoCD com Authentik (OIDC)
 - [KB-024](kanban/cards/KB-024.md) — Authentik (Identity Provider)
 - [KB-026](kanban/cards/KB-026.md) — Integrar apps existentes com Authentik (Forward Auth)
+- [KB-023](kanban/cards/KB-023.md) — Memos (app de notas via navegador)
 
 ---
 
